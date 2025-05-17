@@ -8,4 +8,9 @@ fun main() = runBlocking {
     val grid = injector.provideGridReader().get().await()
 
     println(grid.toString())
+
+    val grinInputReader = UserInputReader
+    val initialParameters = grinInputReader.getInitialParameters()
+
+    println(initialParameters)
 }
