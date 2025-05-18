@@ -1,7 +1,7 @@
 package net.penguin.app
 
-import net.penguin.domain.InputParams
-import net.penguin.domain.Position
+import net.penguin.domain.entity.InputParams
+import net.penguin.domain.entity.Position
 
 object UserInputReader {
     fun getInitialParameters(): InputParams {

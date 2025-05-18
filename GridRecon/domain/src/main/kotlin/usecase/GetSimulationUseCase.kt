@@ -1,9 +1,9 @@
 package net.penguin.domain.usecase
 
-import net.penguin.domain.Drone
 import net.penguin.domain.GridReaderInterface
-import net.penguin.domain.InputParams
-import net.penguin.domain.Simulation
+import net.penguin.domain.entity.Drone
+import net.penguin.domain.entity.InputParams
+import net.penguin.domain.entity.Simulation
 
 class GetSimulationUseCase(
     private val gridReaderInterface: GridReaderInterface

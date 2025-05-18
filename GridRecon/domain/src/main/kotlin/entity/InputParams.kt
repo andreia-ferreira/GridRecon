@@ -1,4 +1,4 @@
-package net.penguin.domain
+package net.penguin.domain.entity
 
 data class InputParams(
     val gridSize: Int,

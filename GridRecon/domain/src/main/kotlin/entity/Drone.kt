@@ -1,4 +1,4 @@
-package net.penguin.domain
+package net.penguin.domain.entity
 
 class Drone(initialPosition: Position) {
     var currentPosition: Position = initialPosition

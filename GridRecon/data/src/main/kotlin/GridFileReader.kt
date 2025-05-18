@@ -4,9 +4,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import net.penguin.domain.Cell
-import net.penguin.domain.Grid
 import net.penguin.domain.GridReaderInterface
+import net.penguin.domain.entity.Cell
+import net.penguin.domain.entity.Grid
 
 object GridFileReader: GridReaderInterface, CoroutineScope by CoroutineScope(Dispatchers.Default) {
     private const val GRID_FOLDER = "/grids"

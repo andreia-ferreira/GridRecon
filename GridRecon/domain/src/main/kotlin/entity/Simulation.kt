@@ -1,4 +1,4 @@
-package net.penguin.domain
+package net.penguin.domain.entity
 
 class Simulation(
     private val maxSteps: Int,
