@@ -1,13 +1,12 @@
 package net.penguin.domain
 
-class Drone(
-    private var position: Position
-) {
-    fun moveTo(position: Position) {
-        this.position = position
-    }
+class Drone(initialPosition: Position) {
+    var currentPosition: Position = initialPosition
+        private set
+    val path = mutableListOf(initialPosition)
 
-    fun matchesPosition(position: Position): Boolean {
-        return this.position.x == position.x && this.position.y == position.y
+    fun moveTo(position: Position) {
+        this.currentPosition = position
+        path.add(position)
     }
 }

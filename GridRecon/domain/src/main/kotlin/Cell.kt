@@ -1,9 +1,16 @@
 package net.penguin.domain
 
 data class Cell(
-    private val initialValue: Int
+    val initialValue: Int
 ) {
-    private var currentValue = initialValue
+    var currentValue = initialValue
+        private set
+
+    fun consume(): Int {
+        return currentValue.also {
+            currentValue = 0
+        }
+    }
 
     fun regenerate(rate: Int) {
         if (currentValue < initialValue) {

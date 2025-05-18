@@ -1,21 +1,25 @@
 package net.penguin.domain
 
 data class Grid(
-    val rows: List<Row>,
-    val drone: Drone
+    val rows: List<List<Cell>>,
+    val regenerationRate: Int = 0
 ) {
-    override fun toString(): String {
-        val red = "\u001B[31m"
-        val reset = "\u001B[0m"
+    fun allCells() = rows.flatten()
 
-        return rows.mapIndexed { y, row ->
-            row.cells.mapIndexed { x, cell ->
-                if (drone.matchesPosition(Position(x = x, y = rows.lastIndex - y))) {
-                    "${red}*${reset}"
-                } else {
-                    cell.toString()
-                }
-            }.joinToString(" ")
-        }.joinToString("\n")
+    fun getCell(position: Position): Cell {
+        return rows[rows.lastIndex - position.y][position.x]
+    }
+
+    fun regenerateCells() {
+        allCells().forEach { it.regenerate(regenerationRate) }
+    }
+
+    private fun isValidPosition(position: Position): Boolean {
+        return try {
+            getCell(position)
+            true
+        } catch (_: IndexOutOfBoundsException) {
+            false
+        }
     }
 }

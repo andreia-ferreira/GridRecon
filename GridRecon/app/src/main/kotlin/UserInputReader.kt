@@ -1,11 +1,10 @@
 package net.penguin.app
 
-import net.penguin.domain.Drone
-import net.penguin.domain.InitialParameters
+import net.penguin.domain.InputParams
 import net.penguin.domain.Position
 
 object UserInputReader {
-    fun getInitialParameters(): InitialParameters {
+    fun getInitialParameters(): InputParams {
         val gridSize = 20 // TODO make this dynamic too
         val cellRegenerationRate = 1
         val maxSteps: Int = requestInput(
@@ -31,7 +30,7 @@ object UserInputReader {
                 }
             }
         )
-        val drone = requestInput(
+        val dronePosition = requestInput(
             prompt = "Please insert the initial drone coordinates separated by comma (x, y): ",
             parser = { input ->
                 try {
@@ -39,7 +38,7 @@ object UserInputReader {
                         .map { it.trim().toInt() }
                         .takeIf { it.size == 2 && it[0] <= gridSize && it[1] <= gridSize }!!
                         .let {
-                            Drone(Position(it[0], it[1]))
+                            Position(it[0], it[1])
                         }
                 } catch (_: Exception) {
                     println("Please introduce valid coordinates separated by a comma")
@@ -48,11 +47,11 @@ object UserInputReader {
             }
         )
 
-        return InitialParameters(
+        return InputParams(
             gridSize,
             maxSteps,
             maxDuration,
-            drone,
+            dronePosition,
             cellRegenerationRate
         )
     }

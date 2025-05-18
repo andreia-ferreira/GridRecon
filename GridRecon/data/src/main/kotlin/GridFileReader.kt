@@ -4,34 +4,28 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import net.penguin.domain.*
+import net.penguin.domain.Cell
+import net.penguin.domain.Grid
+import net.penguin.domain.GridReaderInterface
 
 object GridFileReader: GridReaderInterface, CoroutineScope by CoroutineScope(Dispatchers.Default) {
     private const val GRID_FOLDER = "/grids"
 
-    override fun get(initialParameters: InitialParameters): Deferred<Grid?> {
+    override fun get(): Deferred<Grid?> {
         return async {
             val content = object {}.javaClass.getResource("$GRID_FOLDER/20.txt")?.readText()
-            val drone = initialParameters.drone
             val lines = content?.lines()?.filter { it.isNotBlank() }
 
-            val rows: List<Row>? = lines?.mapIndexedNotNull { y, line ->
+            val rows: List<List<Cell>>? = lines?.mapNotNull { line ->
                 line.trim()
                     .takeIf { it.isNotBlank() }
                     ?.split(" ")
-                    ?.mapIndexed { x, cell ->
-                        if (drone.matchesPosition(Position(x = x, y = lines.lastIndex - y))) {
-                            Cell(0)
-                        } else {
-                            Cell(cell.toInt())
-                        }
+                    ?.map { cell ->
+                        Cell(cell.toInt())
                     }
-                    ?.let {
-                        Row(it)
-                    }
-            }
+            }.takeIf { !it.isNullOrEmpty() }
 
-            rows?.let { Grid(rows, drone) }
+            rows?.let { Grid(rows) }
         }
     }
 }

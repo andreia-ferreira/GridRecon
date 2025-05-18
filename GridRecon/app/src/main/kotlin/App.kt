@@ -1,8 +1,10 @@
 package net.penguin.app
 
 import kotlinx.coroutines.runBlocking
+import net.penguin.domain.usecase.GetSimulationUseCase
 
 val injector = Injector
+val getSimulationUseCase = injector.provideGetSimulationUseCase()
 
 fun main() = runBlocking {
     val grinInputReader = UserInputReader
@@ -10,10 +12,10 @@ fun main() = runBlocking {
 
     println(initialParameters)
 
-    val grid = injector.provideGridReader().get(initialParameters).await() ?: run {
+    val simulation = getSimulationUseCase.execute(GetSimulationUseCase.RequestParams(initialParameters)) ?: run {
         println("Error setting up the grid")
         return@runBlocking
     }
 
-    println(grid.toString())
+    println(simulation.toString())
 }

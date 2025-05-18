@@ -2,9 +2,16 @@ package net.penguin.app
 
 import net.penguin.data.GridFileReader
 import net.penguin.domain.GridReaderInterface
+import net.penguin.domain.usecase.GetSimulationUseCase
 
 object Injector {
-    fun provideGridReader(): GridReaderInterface {
+    private fun provideGridReader(): GridReaderInterface {
         return GridFileReader
+    }
+
+    fun provideGetSimulationUseCase(): GetSimulationUseCase {
+        return GetSimulationUseCase(
+            provideGridReader()
+        )
     }
 }

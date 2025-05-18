@@ -1,9 +1,9 @@
 package net.penguin.domain
 
-data class InitialParameters(
+data class InputParams(
     val gridSize: Int,
     val maxSteps: Int,
     val maxDuration: Long,
-    val drone: Drone,
+    val dronePosition: Position,
     val cellRegenerationRate: Int
 )
