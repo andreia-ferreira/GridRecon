@@ -36,7 +36,7 @@ object UserInputReader {
                 try {
                     input!!.split(",")
                         .map { it.trim().toInt() }
-                        .takeIf { it.size == 2 && it[0] <= gridSize && it[1] <= gridSize }!!
+                        .takeIf { it.size == 2 && it[0] < gridSize && it[1] < gridSize }!!
                         .let {
                             Position(it[0], it[1])
                         }

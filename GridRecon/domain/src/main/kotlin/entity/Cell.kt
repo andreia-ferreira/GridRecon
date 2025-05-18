@@ -18,6 +18,13 @@ data class Cell(
         }
     }
 
+    fun valueAtTimeStep(
+        timeStep: Int,
+        regenerationRate: Int
+    ): Int {
+        return minOf(currentValue + timeStep * regenerationRate, initialValue)
+    }
+
     override fun toString(): String {
         return "$currentValue"
     }

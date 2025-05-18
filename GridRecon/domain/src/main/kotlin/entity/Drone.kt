@@ -1,12 +1,13 @@
 package net.penguin.domain.entity
 
 class Drone(initialPosition: Position) {
+    val path = mutableListOf(initialPosition)
     var currentPosition: Position = initialPosition
         private set
-    val path = mutableListOf(initialPosition)
 
     fun moveTo(position: Position) {
-        this.currentPosition = position
+        currentPosition = position
         path.add(position)
+
     }
 }

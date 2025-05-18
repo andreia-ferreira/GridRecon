@@ -2,6 +2,7 @@ package net.penguin.app
 
 import net.penguin.data.GridFileReader
 import net.penguin.domain.GridReaderInterface
+import net.penguin.domain.usecase.GetOptimalPathUseCase
 import net.penguin.domain.usecase.GetSimulationUseCase
 
 object Injector {
@@ -13,5 +14,9 @@ object Injector {
         return GetSimulationUseCase(
             provideGridReader()
         )
+    }
+
+    fun provideGetOptimalPathUseCase(): GetOptimalPathUseCase {
+        return GetOptimalPathUseCase()
     }
 }

@@ -4,22 +4,17 @@ data class Grid(
     val rows: List<List<Cell>>,
     val regenerationRate: Int = 0
 ) {
-    fun allCells() = rows.flatten()
+    val size = rows.size
 
     fun getCell(position: Position): Cell {
         return rows[rows.lastIndex - position.y][position.x]
     }
 
     fun regenerateCells() {
-        allCells().forEach { it.regenerate(regenerationRate) }
+        rows.flatten().forEach { it.regenerate(regenerationRate) }
     }
 
-    private fun isValidPosition(position: Position): Boolean {
-        return try {
-            getCell(position)
-            true
-        } catch (_: IndexOutOfBoundsException) {
-            false
-        }
+    fun isValidPosition(position: Position): Boolean {
+        return position.x in 0 until size && position.y in 0 until size
     }
 }
