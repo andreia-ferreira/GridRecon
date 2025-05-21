@@ -6,7 +6,7 @@ import net.penguin.domain.entity.Position
 object UserInputReader {
     fun getInitialParameters(): InputParams {
         val gridSize = 20 // TODO make this dynamic too
-        val cellRegenerationRate = 1
+        val cellRegenerationRate = 0.5
         val maxSteps: Int = requestInput(
             prompt = "Please insert the number of time steps (t): ",
             parser = { input ->

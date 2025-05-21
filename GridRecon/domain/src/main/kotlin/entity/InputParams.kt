@@ -5,5 +5,5 @@ data class InputParams(
     val maxSteps: Int,
     val maxDuration: Long,
     val dronePosition: Position,
-    val cellRegenerationRate: Int
+    val cellRegenerationRate: Double
 )

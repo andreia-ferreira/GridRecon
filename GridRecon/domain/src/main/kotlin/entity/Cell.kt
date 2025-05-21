@@ -3,29 +3,35 @@ package net.penguin.domain.entity
 data class Cell(
     val initialValue: Int
 ) {
-    var currentValue = initialValue
-        private set
+    private var regenerationProgress: Double = initialValue.toDouble()
+    private var timeStepLastVisited: Int = -1
 
-    fun consume(): Int {
-        return currentValue.also {
-            currentValue = 0
-        }
+    fun getValue(): Int = regenerationProgress.toInt()
+
+    fun consume(timeStep: Int): Int {
+        return if (timeStepLastVisited != timeStep) {
+            timeStepLastVisited = timeStep
+            val consumed = regenerationProgress.toInt()
+            regenerationProgress -= consumed
+            consumed
+        } else 0
     }
 
-    fun regenerate(rate: Int) {
-        if (currentValue < initialValue) {
-            currentValue = currentValue + rate
+    fun regenerate(rate: Double, timeStep: Int) {
+        if (getValue() < initialValue && timeStep != timeStepLastVisited) {
+            regenerationProgress = minOf(initialValue.toDouble(), regenerationProgress + rate)
         }
-    }
-
-    fun valueAtTimeStep(
-        timeStep: Int,
-        regenerationRate: Int
-    ): Int {
-        return minOf(currentValue + timeStep * regenerationRate, initialValue)
     }
 
     override fun toString(): String {
-        return "$currentValue"
+        return "${getValue()}"
     }
+
+    fun copyForClone(): Cell {
+        val clone = Cell(initialValue)
+        clone.regenerationProgress = this.regenerationProgress
+        clone.timeStepLastVisited = this.timeStepLastVisited
+        return clone
+    }
+
 }

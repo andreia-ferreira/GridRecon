@@ -1,7 +1,6 @@
 package net.penguin.domain.usecase
 
 import net.penguin.domain.GridReaderInterface
-import net.penguin.domain.entity.Drone
 import net.penguin.domain.entity.InputParams
 import net.penguin.domain.entity.Simulation
 
@@ -10,15 +9,14 @@ class GetSimulationUseCase(
 ): UseCase.ParamsUseCase<GetSimulationUseCase.RequestParams, Simulation?> {
     override suspend fun execute(requestParams: RequestParams): Simulation? {
         val originalGrid = gridReaderInterface.get().await() ?: return null
-        val drone = Drone(requestParams.inputParams.dronePosition)
 
         return Simulation(
-            maxSteps = requestParams.inputParams.maxSteps,
+            moves = requestParams.inputParams.maxSteps,
             maxDuration = requestParams.inputParams.maxDuration,
             grid = originalGrid.copy(regenerationRate = requestParams.inputParams.cellRegenerationRate),
-            drone = drone
+            startPosition = requestParams.inputParams.dronePosition
         ).also {
-            originalGrid.getCell(requestParams.inputParams.dronePosition).consume()
+            originalGrid.getCell(requestParams.inputParams.dronePosition).consume(0)
         }
     }
 
