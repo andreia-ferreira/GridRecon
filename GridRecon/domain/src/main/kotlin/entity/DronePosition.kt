@@ -6,5 +6,4 @@ data class DronePosition(
     val score: Int,
     val cumulativeScore: Int,
     val path: List<Position>,
-    val gridSnapshot: Grid
 )

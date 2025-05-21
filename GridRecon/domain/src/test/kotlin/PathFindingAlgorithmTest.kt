@@ -1,7 +1,5 @@
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import net.penguin.domain.algorithm.PathFindingAlgorithm
-import net.penguin.domain.algorithm.SearchState
 import net.penguin.domain.entity.Cell
 import net.penguin.domain.entity.Grid
 import net.penguin.domain.entity.Position
@@ -24,7 +22,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0,0)
         )
 
-        val result = PathFindingAlgorithm.run(simulation)
+        val result = PathFindingAlgorithm.run(simulation, {})
 
         val expectedPath = listOf(
             Position(0, 0),
@@ -32,7 +30,7 @@ class PathFindingAlgorithmTest {
             Position(2, 0)
         )
 
-        assertEquals(expectedPath, ((result.first { it is SearchState.Result } as SearchState.Result).path))
+        assertEquals(expectedPath, result.path)
     }
 
     @Test
@@ -49,13 +47,13 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0,0)
         )
 
-        val result = PathFindingAlgorithm.run(simulation)
+        val result = PathFindingAlgorithm.run(simulation, {})
 
         val expectedPath = listOf(
             Position(0, 0),
             Position(1, 1),
         )
 
-        assertEquals(expectedPath, ((result.first { it is SearchState.Result } as SearchState.Result).path))
+        assertEquals(expectedPath, result.path)
     }
 }

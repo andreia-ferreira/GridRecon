@@ -1,14 +1,13 @@
 package net.penguin.app
 
 import kotlinx.coroutines.runBlocking
-import net.penguin.domain.usecase.GetOptimalPathUseCase
+import net.penguin.domain.algorithm.PathFindingAlgorithm
 import net.penguin.domain.usecase.GetSimulationUseCase
 
-val injector = Injector
-val getSimulationUseCase = injector.provideGetSimulationUseCase()
-val getOptimalPathUseCase = injector.provideGetOptimalPathUseCase()
-
 fun main() = runBlocking {
+    val injector = Injector
+    val getSimulationUseCase = injector.provideGetSimulationUseCase()
+
     val grinInputReader = UserInputReader
     val initialParameters = grinInputReader.getInitialParameters()
 
@@ -19,18 +18,6 @@ fun main() = runBlocking {
         return@runBlocking
     }
 
-    val result = getOptimalPathUseCase.execute(GetOptimalPathUseCase.RequestParams(simulation))
-
-    println("=== Simulation Steps ===")
-    simulation.runSimulationWithPath(
-        path = result.path,
-        onCellValueConsumed = {
-            println("Step ${simulation.currentTimeStep} - Drone at ${simulation.drone.currentPosition} consumed $it")
-            println(simulation)
-        }
-    )
-
-    println("=== Final Result ===")
-    println("Total Score: ${result.totalScore}")
-    println("Time Steps Used: ${result.path.size}")
+    SimulationRunner(PathFindingAlgorithm).execute(simulation)
 }
+

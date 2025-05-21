@@ -1,8 +1,7 @@
 package net.penguin.domain.algorithm
 
-import kotlinx.coroutines.flow.Flow
 import net.penguin.domain.entity.Simulation
 
 interface PathFindingAlgorithmInterface {
-    fun run(simulation: Simulation): Flow<SearchState>
+    fun run(simulation: Simulation, onStep: (SearchState) -> Unit): SearchState.Result
 }

@@ -1,8 +1,5 @@
 package net.penguin.domain.algorithm
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
 import net.penguin.domain.entity.DronePosition
 import net.penguin.domain.entity.Grid
 import net.penguin.domain.entity.Position
@@ -11,7 +8,10 @@ import net.penguin.domain.entity.Simulation
 object PathFindingAlgorithm: PathFindingAlgorithmInterface {
     private const val BEAM_WIDTH = 10
 
-    override fun run(simulation: Simulation): Flow<SearchState> = flow {
+    override fun run(
+        simulation: Simulation,
+        onStep: (SearchState) -> Unit
+    ): SearchState.Result {
         val maxSteps = simulation.moves
         val startTime = System.currentTimeMillis()
 
@@ -21,15 +21,14 @@ object PathFindingAlgorithm: PathFindingAlgorithmInterface {
                 timeStep = 0,
                 score = 0,
                 cumulativeScore = 0,
-                path = listOf(simulation.startPosition),
-                gridSnapshot = simulation.grid.clone()
+                path = listOf(simulation.startPosition)
             )
         )
 
         var bestResult = currentBeam.first()
         var currentStep = 0
 
-        emit(SearchState.Begin)
+        onStep(SearchState.Begin)
 
         while (currentBeam.isNotEmpty() && currentStep < maxSteps) {
             println("Time step: $currentStep")
@@ -46,19 +45,14 @@ object PathFindingAlgorithm: PathFindingAlgorithmInterface {
                     val nextStep = dronePosition.timeStep + 1
                     if (nextStep > maxSteps) continue
 
-                    // Clone grid snapshot for simulation of consumption and regeneration
-                    val gridSnapshot = dronePosition.gridSnapshot.clone()
-
-                    // Calculate score and simulate consumption on the grid snapshot
-                    val consumedValue = gridSnapshot.getCell(neighbor).consume(nextStep)
-                    gridSnapshot.regenerateCells(nextStep)
+                    val consumedValue = simulation.grid.getCell(neighbor).getValue()
 
                     val cumulativeScore = dronePosition.cumulativeScore + consumedValue
                     val path = dronePosition.path + neighbor
 
                     val estimatedTotalScore = cumulativeScore + estimatePotential(
-                        this,
-                        gridSnapshot,
+                        onStep,
+                        simulation.grid,
                         neighbor,
                         nextStep,
                         maxSteps - nextStep
@@ -70,12 +64,11 @@ object PathFindingAlgorithm: PathFindingAlgorithmInterface {
                         score = consumedValue,
                         cumulativeScore = cumulativeScore,
                         path = path,
-                        gridSnapshot = gridSnapshot
                     )
 
                     candidates.add(nextDronePosition to estimatedTotalScore)
 
-                    emit(SearchState.AddCandidate(nextDronePosition))
+                    onStep(SearchState.AddCandidate(nextDronePosition))
                 }
             }
 
@@ -87,18 +80,20 @@ object PathFindingAlgorithm: PathFindingAlgorithmInterface {
             val bestInBeam = currentBeam.maxByOrNull { it.cumulativeScore }
             if (bestInBeam != null && bestInBeam.cumulativeScore > bestResult.cumulativeScore) {
                 bestResult = bestInBeam
-                emit(SearchState.AddToBestOption(bestResult))
+                onStep(SearchState.AddToBestOption(bestResult))
             }
 
             currentStep++
-            emit(SearchState.Move(bestResult))
+            onStep(SearchState.Move(bestResult))
         }
 
-        emit(SearchState.Result(bestResult.path, bestResult.cumulativeScore, bestResult.gridSnapshot))
+        val result = SearchState.Result(bestResult.path, bestResult.cumulativeScore)
+        onStep(result)
+        return result
     }
 
-    private suspend fun estimatePotential(
-        flowCollector: FlowCollector<SearchState>,
+    private fun estimatePotential(
+        onEvaluate: (SearchState) -> Unit,
         grid: Grid,
         from: Position,
         timeStep: Int,
@@ -117,11 +112,11 @@ object PathFindingAlgorithm: PathFindingAlgorithmInterface {
                 grid.estimateValueAt(position, arrivalTime)
             } ?: break
 
-            totalEstimate += grid.getCell(best).getValue()
+            totalEstimate += grid.estimateValueAt(best, currentStep + 1)
             current = best
             currentStep++
             remainingSteps--
-            flowCollector.emit(SearchState.EvaluatingPotential(grid, from, neighbors, current))
+            onEvaluate(SearchState.EvaluatingPotential(from, neighbors, current))
         }
 
         return totalEstimate
