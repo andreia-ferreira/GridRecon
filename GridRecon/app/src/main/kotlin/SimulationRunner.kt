@@ -1,10 +1,10 @@
 package net.penguin.app
 
-import net.penguin.domain.algorithm.PathFindingAlgorithmInterface
+import net.penguin.domain.algorithm.DroneMovementAlgorithmInterface
 import net.penguin.domain.algorithm.SearchState
 import net.penguin.domain.entity.Simulation
 
-class SimulationRunner(private val algorithmInterface: PathFindingAlgorithmInterface) {
+class SimulationRunner(private val algorithmInterface: DroneMovementAlgorithmInterface) {
     fun execute(simulation: Simulation) {
         algorithmInterface.run(simulation) { state ->
             when (state) {

@@ -1,7 +1,7 @@
 package net.penguin.app
 
 import kotlinx.coroutines.runBlocking
-import net.penguin.domain.algorithm.PathFindingAlgorithm
+import net.penguin.domain.algorithm.DroneMovementBeamAlgorithm
 import net.penguin.domain.usecase.GetSimulationUseCase
 
 fun main() = runBlocking {
@@ -18,6 +18,6 @@ fun main() = runBlocking {
         return@runBlocking
     }
 
-    SimulationRunner(PathFindingAlgorithm).execute(simulation)
+    SimulationRunner(DroneMovementBeamAlgorithm).execute(simulation)
 }
 

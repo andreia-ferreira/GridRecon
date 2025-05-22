@@ -5,7 +5,7 @@ import net.penguin.domain.entity.Grid
 import net.penguin.domain.entity.Position
 import net.penguin.domain.entity.Simulation
 
-object PathFindingAlgorithm: PathFindingAlgorithmInterface {
+object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
     private const val BEAM_WIDTH = 10
 
     override fun run(
