@@ -21,7 +21,8 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
                 timeStep = 0,
                 score = 0,
                 cumulativeScore = 0,
-                path = listOf(simulation.startPosition)
+                path = listOf(simulation.startPosition),
+                gridSnapshot = simulation.grid
             )
         )
 
@@ -33,6 +34,7 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
         while (currentBeam.isNotEmpty() && currentStep < maxSteps) {
             println("Time step: $currentStep")
             if (System.currentTimeMillis() - startTime >= simulation.maxDuration) break
+            simulation.grid.regenerateCells(currentStep)
 
             val candidates = mutableListOf<Pair<DronePosition, Int>>()
 
@@ -64,6 +66,7 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
                         score = consumedValue,
                         cumulativeScore = cumulativeScore,
                         path = path,
+                        gridSnapshot = simulation.grid
                     )
 
                     candidates.add(nextDronePosition to estimatedTotalScore)
@@ -78,16 +81,19 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
 
             // Update best result
             val bestInBeam = currentBeam.maxByOrNull { it.cumulativeScore }
-            if (bestInBeam != null && bestInBeam.cumulativeScore > bestResult.cumulativeScore) {
-                bestResult = bestInBeam
-                onStep(SearchState.AddToBestOption(bestResult))
-            }
+            bestInBeam?.let {
+                if (bestInBeam.cumulativeScore > bestResult.cumulativeScore) {
+                    bestResult = bestInBeam
+                    onStep(SearchState.AddToBestOption(bestResult))
+                }
 
+                simulation.grid.getCell(bestInBeam.position).consume(currentStep)
+                onStep(SearchState.Move(it))
+            }
             currentStep++
-            onStep(SearchState.Move(bestResult))
         }
 
-        val result = SearchState.Result(bestResult.path, bestResult.cumulativeScore)
+        val result = SearchState.Result(bestResult.path, bestResult.cumulativeScore, bestResult.gridSnapshot)
         onStep(result)
         return result
     }
@@ -116,7 +122,7 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
             current = best
             currentStep++
             remainingSteps--
-            onEvaluate(SearchState.EvaluatingPotential(from, neighbors, current))
+            onEvaluate(SearchState.EvaluatingPotential(from, neighbors, current, grid))
         }
 
         return totalEstimate

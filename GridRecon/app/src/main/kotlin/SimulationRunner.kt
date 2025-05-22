@@ -38,12 +38,6 @@ class SimulationRunner(private val algorithmInterface: DroneMovementAlgorithmInt
                 }
                 is SearchState.Move -> {
                     println("\n=== Moving with current score ${state.dronePosition.cumulativeScore} ===")
-                    simulation.grid.getCell(state.dronePosition.position).consume(state.dronePosition.timeStep)
-                    simulation.grid.print(
-                        redTarget = state.dronePosition.position,
-                        highlightedPositions = state.dronePosition.path
-                    )
-                    simulation.grid.regenerateCells(state.dronePosition.timeStep)
                 }
                 is SearchState.Result -> {
                     println("\n=== Final Result ===")

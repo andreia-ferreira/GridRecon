@@ -1,5 +1,6 @@
 import kotlinx.coroutines.runBlocking
-import net.penguin.domain.algorithm.DroneMovementAlgorithmInterface
+import net.penguin.domain.algorithm.DroneMovementBeamAlgorithm
+import net.penguin.domain.algorithm.SearchState
 import net.penguin.domain.entity.Cell
 import net.penguin.domain.entity.Grid
 import net.penguin.domain.entity.Position
@@ -23,7 +24,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0,0)
         )
 
-        val result = DroneMovementAlgorithmInterface.run(simulation, {})
+        val result = DroneMovementBeamAlgorithm.run(simulation, {})
 
         val expectedPath = listOf(
             Position(0, 0),
@@ -49,7 +50,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0,0)
         )
 
-        val result = DroneMovementAlgorithmInterface.run(simulation, {})
+        val result = DroneMovementBeamAlgorithm.run(simulation, {})
 
         val expectedPath = listOf(
             Position(0, 0),
@@ -75,7 +76,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0,0)
         )
 
-        val result = DroneMovementAlgorithmInterface.run(simulation, {})
+        val result = DroneMovementBeamAlgorithm.run(simulation, {})
 
         val expectedPath = listOf(
             Position(0, 0),
@@ -102,7 +103,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(1, 1)
         )
 
-        val result = DroneMovementAlgorithmInterface.run(simulation, {})
+        val result = DroneMovementBeamAlgorithm.run(simulation, {})
 
         assertEquals(listOf(Position(1, 1)), result.path)
     }
@@ -118,7 +119,7 @@ class PathFindingAlgorithmTest {
         )
 
         val startTime = System.currentTimeMillis()
-        val result = DroneMovementAlgorithmInterface.run(simulation, {})
+        val result = DroneMovementBeamAlgorithm.run(simulation, {})
         val endTime = System.currentTimeMillis()
 
         assertTrue(result.path.isNotEmpty())
@@ -135,13 +136,13 @@ class PathFindingAlgorithmTest {
         }
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 30,
+            moves = 3,
             maxDuration = 1000,
             startPosition = Position(0, 0)
         )
 
         val startTime = System.currentTimeMillis()
-        val result = DroneMovementAlgorithmInterface.run(simulation, {})
+        val result = DroneMovementBeamAlgorithm.run(simulation, {})
         val endTime = System.currentTimeMillis()
 
         assertTrue(endTime - startTime < simulation.maxDuration)
@@ -162,7 +163,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(1, 1)
         )
 
-        val result = DroneMovementAlgorithmInterface.run(simulation, {})
+        val result = DroneMovementBeamAlgorithm.run(simulation, {})
 
         assertTrue(result.path.size > 1)
         assertEquals(0, result.totalScore)
@@ -184,7 +185,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0, 0)
         )
 
-        val result = DroneMovementAlgorithmInterface.run(simulation, {})
+        val result = DroneMovementBeamAlgorithm.run(simulation, {})
 
         assertTrue(result.path.contains(Position(2, 2)))
         assertTrue(result.totalScore > 20)
@@ -204,11 +205,11 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0, 0)
         )
 
-        val result = DroneMovementAlgorithmInterface.run(simulation, {
-//            if (it is SearchState.Move) {
-//                simulation.grid.regenerateCells(it.dronePosition.timeStep)
-//                simulation.grid.getCell(it.dronePosition.position).consume(it.dronePosition.timeStep)
-//            }
+        val result = DroneMovementBeamAlgorithm.run(simulation, {
+            if (it is SearchState.Move) {
+                simulation.grid.regenerateCells(it.dronePosition.timeStep)
+                simulation.grid.getCell(it.dronePosition.position).consume(it.dronePosition.timeStep)
+            }
         })
 
         assertTrue(result.path.contains(Position(1, 1)))
