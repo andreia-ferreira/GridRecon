@@ -19,7 +19,7 @@ class PathFindingAlgorithmTest {
         )
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 2,
+            maxMoves = 2,
             maxDuration = 1000,
             startPosition = Position(0,0)
         )
@@ -45,7 +45,7 @@ class PathFindingAlgorithmTest {
         )
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 1,
+            maxMoves = 1,
             maxDuration = 1000,
             startPosition = Position(0,0)
         )
@@ -71,7 +71,7 @@ class PathFindingAlgorithmTest {
         )
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 3,
+            maxMoves = 3,
             maxDuration = 1000,
             startPosition = Position(0,0)
         )
@@ -98,7 +98,7 @@ class PathFindingAlgorithmTest {
         )
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 0,
+            maxMoves = 0,
             maxDuration = 1000,
             startPosition = Position(1, 1)
         )
@@ -113,7 +113,7 @@ class PathFindingAlgorithmTest {
         val matrix = List(10) { List(10) { 1 } }
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 50,
+            maxMoves = 50,
             maxDuration = 100,
             startPosition = Position(0, 0)
         )
@@ -136,7 +136,7 @@ class PathFindingAlgorithmTest {
         }
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 3,
+            maxMoves = 3,
             maxDuration = 1000,
             startPosition = Position(0, 0)
         )
@@ -158,7 +158,7 @@ class PathFindingAlgorithmTest {
         )
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 3,
+            maxMoves = 3,
             maxDuration = 1000,
             startPosition = Position(1, 1)
         )
@@ -180,7 +180,7 @@ class PathFindingAlgorithmTest {
         )
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
-            moves = 8,
+            maxMoves = 8,
             maxDuration = 1000,
             startPosition = Position(0, 0)
         )
@@ -200,15 +200,15 @@ class PathFindingAlgorithmTest {
         )
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}, regenerationRate = 0.5),
-            moves = 4,
+            maxMoves = 4,
             maxDuration = 1000,
             startPosition = Position(0, 0)
         )
 
         val result = DroneMovementBeamAlgorithm.run(simulation, {
             if (it is SearchState.Move) {
-                simulation.grid.regenerateCells(it.dronePosition.timeStep)
-                simulation.grid.getCell(it.dronePosition.position).consume(it.dronePosition.timeStep)
+                simulation.grid.regenerateCells(it.dronePosition.currentTurn)
+                simulation.grid.getCell(it.dronePosition.position).consume(it.dronePosition.currentTurn)
             }
         })
 

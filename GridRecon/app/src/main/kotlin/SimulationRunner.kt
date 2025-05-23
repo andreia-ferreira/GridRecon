@@ -9,14 +9,14 @@ class SimulationRunner(private val algorithmInterface: DroneMovementAlgorithmInt
         algorithmInterface.run(simulation) { state ->
             when (state) {
                 is SearchState.AddCandidate -> {
-                    println("\n=== Add candidate for Move : ${state.dronePosition.timeStep} ===")
+                    println("\n=== Add candidate for Move : ${state.dronePosition.currentTurn} ===")
                     simulation.grid.print(
                         redTarget = state.dronePosition.position,
                         highlightedPositions = state.dronePosition.path,
                     )
                 }
                 is SearchState.AddToBestOption -> {
-                    println("\n=== Adding best option with Score ${state.dronePosition.score} for Move ${state.dronePosition.timeStep} ===")
+                    println("\n=== Adding best option with Score ${state.dronePosition.score} for Move ${state.dronePosition.currentTurn} ===")
                     simulation.grid.print(
                         greenTarget = state.dronePosition.position,
                         highlightedPositions = state.dronePosition.path,

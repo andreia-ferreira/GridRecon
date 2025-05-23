@@ -53,7 +53,7 @@ object UserInputReader {
 
         return InputParams(
             gridType = gridType,
-            maxSteps = maxSteps,
+            maxTurns = maxSteps,
             maxDuration = maxDuration,
             dronePosition = dronePosition,
             cellRegenerationRate = cellRegenerationRate

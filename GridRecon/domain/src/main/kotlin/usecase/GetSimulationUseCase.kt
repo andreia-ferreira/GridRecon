@@ -11,7 +11,7 @@ class GetSimulationUseCase(
         val originalGrid = gridReaderInterface.get(requestParams.inputParams.gridType).await() ?: return null
 
         return Simulation(
-            moves = requestParams.inputParams.maxSteps,
+            maxMoves = requestParams.inputParams.maxTurns,
             maxDuration = requestParams.inputParams.maxDuration,
             grid = originalGrid.copy(regenerationRate = requestParams.inputParams.cellRegenerationRate),
             startPosition = requestParams.inputParams.dronePosition

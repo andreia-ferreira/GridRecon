@@ -12,29 +12,25 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
         simulation: Simulation,
         onStep: (SearchState) -> Unit
     ): SearchState.Result {
-        val maxSteps = simulation.moves
-        val startTime = System.currentTimeMillis()
+        simulation.startTimer()
 
         var currentBeam = listOf(
             DronePosition(
                 position = simulation.startPosition,
-                timeStep = 0,
+                currentTurn = 0,
                 score = 0,
                 cumulativeScore = 0,
                 path = listOf(simulation.startPosition),
-                gridSnapshot = simulation.grid
             )
         )
 
         var bestResult = currentBeam.first()
-        var currentStep = 0
 
         onStep(SearchState.Begin)
 
-        while (currentBeam.isNotEmpty() && currentStep < maxSteps) {
-            println("Time step: $currentStep")
-            if (System.currentTimeMillis() - startTime >= simulation.maxDuration) break
-            simulation.grid.regenerateCells(currentStep)
+        while (currentBeam.isNotEmpty() && !simulation.isMovementLimitReached() && !simulation.isTimeLimitReached()) {
+            println("Turn: ${simulation.currentTurn}")
+            simulation.grid.regenerateCells(simulation.currentTurn)
 
             val candidates = mutableListOf<Pair<DronePosition, Int>>()
 
@@ -44,33 +40,30 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
                 }
 
                 for (neighbor in neighbors) {
-                    val nextStep = dronePosition.timeStep + 1
-                    if (nextStep > maxSteps) continue
+                    val nextStep = dronePosition.currentTurn + 1
+                    if (nextStep > simulation.maxMoves) continue
 
-                    val consumedValue = simulation.grid.getCell(neighbor).getValue()
-
-                    val cumulativeScore = dronePosition.cumulativeScore + consumedValue
+                    val cellValue = simulation.grid.getCell(neighbor).getValue()
+                    val cumulativeScore = dronePosition.cumulativeScore + cellValue
                     val path = dronePosition.path + neighbor
 
                     val estimatedTotalScore = cumulativeScore + estimatePotential(
-                        onStep,
-                        simulation.grid,
-                        neighbor,
-                        nextStep,
-                        maxSteps - nextStep
+                        onEvaluate = onStep,
+                        grid = simulation.grid,
+                        from = neighbor,
+                        turn = nextStep,
+                        stepsLeft = simulation.maxMoves - nextStep
                     )
 
                     val nextDronePosition = DronePosition(
                         position = neighbor,
-                        timeStep = nextStep,
-                        score = consumedValue,
+                        currentTurn = nextStep,
+                        score = cellValue,
                         cumulativeScore = cumulativeScore,
                         path = path,
-                        gridSnapshot = simulation.grid
                     )
 
                     candidates.add(nextDronePosition to estimatedTotalScore)
-
                     onStep(SearchState.AddCandidate(nextDronePosition))
                 }
             }
@@ -87,13 +80,13 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
                     onStep(SearchState.AddToBestOption(bestResult))
                 }
 
-                simulation.grid.getCell(bestInBeam.position).consume(currentStep)
+                simulation.grid.getCell(bestInBeam.position).consume(simulation.currentTurn)
                 onStep(SearchState.Move(it))
             }
-            currentStep++
+            simulation.nextTurn()
         }
 
-        val result = SearchState.Result(bestResult.path, bestResult.cumulativeScore, bestResult.gridSnapshot)
+        val result = SearchState.Result(bestResult.path, bestResult.cumulativeScore, simulation.grid)
         onStep(result)
         return result
     }
@@ -102,16 +95,16 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
         onEvaluate: (SearchState) -> Unit,
         grid: Grid,
         from: Position,
-        timeStep: Int,
+        turn: Int,
         stepsLeft: Int
     ): Int {
-        var current = from
-        var currentStep = timeStep
+        var currentPosition = from
+        var currentStep = turn
         var totalEstimate = 0
         var remainingSteps = stepsLeft
 
         while (remainingSteps > 0) {
-            val neighbors = current.getNeighbors().filter { grid.isValidPosition(it) }
+            val neighbors = currentPosition.getNeighbors().filter { grid.isValidPosition(it) }
 
             val best = neighbors.maxByOrNull { position: Position ->
                 val arrivalTime = currentStep + 1
@@ -119,13 +112,12 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
             } ?: break
 
             totalEstimate += grid.estimateValueAt(best, currentStep + 1)
-            current = best
+            currentPosition = best
             currentStep++
             remainingSteps--
-            onEvaluate(SearchState.EvaluatingPotential(from, neighbors, current, grid))
+            onEvaluate(SearchState.EvaluatingPotential(from, neighbors, currentPosition, grid))
         }
 
         return totalEstimate
     }
-
 }

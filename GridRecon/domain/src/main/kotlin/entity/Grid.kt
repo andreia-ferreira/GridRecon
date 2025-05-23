@@ -10,8 +10,10 @@ data class Grid(
         return rows[rows.lastIndex - position.y][position.x]
     }
 
-    fun regenerateCells(timeStep: Int) {
-        rows.flatten().forEach { it.regenerate(regenerationRate, timeStep) }
+    fun regenerateCells(turn: Int) {
+        if (turn > 0) {
+            rows.flatten().forEach { it.regenerate(regenerationRate, turn) }
+        }
     }
 
     fun isValidPosition(position: Position): Boolean {
@@ -20,15 +22,10 @@ data class Grid(
 
     fun estimateValueAt(
         position: Position,
-        timeStep: Int,
+        turn: Int,
     ): Int {
         val cell = getCell(position)
-        val projectedValue = cell.getValue() + (regenerationRate * timeStep)
+        val projectedValue = cell.getValue() + (regenerationRate * turn)
         return minOf(cell.initialValue, projectedValue.toInt())
-    }
-
-    fun clone(): Grid {
-        val newRows = rows.map { row -> row.map { it.copyForClone() } }
-        return Grid(newRows, regenerationRate)
     }
 }

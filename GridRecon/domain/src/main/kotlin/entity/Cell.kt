@@ -4,21 +4,21 @@ data class Cell(
     val initialValue: Int
 ) {
     private var regenerationProgress: Double = initialValue.toDouble()
-    private var timeStepLastVisited: Int = -1
+    private var turnLastVisited: Int = -1
 
     fun getValue(): Int = regenerationProgress.toInt()
 
-    fun consume(timeStep: Int): Int {
-        return if (timeStepLastVisited != timeStep) {
-            timeStepLastVisited = timeStep
+    fun consume(turn: Int): Int {
+        return if (turnLastVisited != turn) {
+            turnLastVisited = turn
             val consumed = regenerationProgress.toInt()
             regenerationProgress -= consumed
             consumed
         } else 0
     }
 
-    fun regenerate(rate: Double, timeStep: Int) {
-        if (getValue() < initialValue && timeStep != timeStepLastVisited) {
+    fun regenerate(rate: Double, turn: Int) {
+        if (getValue() < initialValue && turn != turnLastVisited) {
             regenerationProgress = minOf(initialValue.toDouble(), regenerationProgress + rate)
         }
     }
@@ -26,12 +26,4 @@ data class Cell(
     override fun toString(): String {
         return "${getValue()}"
     }
-
-    fun copyForClone(): Cell {
-        val clone = Cell(initialValue)
-        clone.regenerationProgress = this.regenerationProgress
-        clone.timeStepLastVisited = this.timeStepLastVisited
-        return clone
-    }
-
 }
