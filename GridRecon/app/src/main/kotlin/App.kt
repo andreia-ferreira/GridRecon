@@ -13,11 +13,12 @@ fun main() = runBlocking {
 
     println(initialParameters)
 
-    val simulation = getSimulationUseCase.execute(GetSimulationUseCase.RequestParams(initialParameters)) ?: run {
+    val simulation = getSimulationUseCase.execute(
+        GetSimulationUseCase.RequestParams(initialParameters)
+    ) ?: run {
         println("Error setting up the grid")
         return@runBlocking
     }
 
     SimulationRunner(DroneMovementBeamAlgorithm).execute(simulation)
 }
-

@@ -1,7 +1,7 @@
 package net.penguin.domain.entity
 
 data class InputParams(
-    val gridSize: Int,
+    val gridType: GridType,
     val maxSteps: Int,
     val maxDuration: Long,
     val dronePosition: Position,

@@ -2,7 +2,8 @@ package net.penguin.domain
 
 import kotlinx.coroutines.Deferred
 import net.penguin.domain.entity.Grid
+import net.penguin.domain.entity.GridType
 
 interface GridReaderInterface {
-    fun get(): Deferred<Grid?>
+    fun get(gridType: GridType): Deferred<Grid?>
 }

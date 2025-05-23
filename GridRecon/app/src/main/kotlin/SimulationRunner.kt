@@ -38,6 +38,10 @@ class SimulationRunner(private val algorithmInterface: DroneMovementAlgorithmInt
                 }
                 is SearchState.Move -> {
                     println("\n=== Moving with current score ${state.dronePosition.cumulativeScore} ===")
+                    simulation.grid.print(
+                        redTarget = state.dronePosition.position,
+                        highlightedPositions = state.dronePosition.path
+                    )
                 }
                 is SearchState.Result -> {
                     println("\n=== Final Result ===")
@@ -46,8 +50,10 @@ class SimulationRunner(private val algorithmInterface: DroneMovementAlgorithmInt
                         highlightedPositions = state.path
                     )
                     println("Total Score: ${state.totalScore}")
-                    println("Time Steps Used: ${state.path.size - 1}")
-                    println("Final path: ${state.path}")
+                    println("Total Movements: ${state.path.size - 1}")
+                    println("Final path:\n${state.path.mapIndexed { index, position ->  
+                        "Turn $index : (${position.x}, ${position.y})"
+                    }.joinToString("\n")}")
                 }
             }
         }

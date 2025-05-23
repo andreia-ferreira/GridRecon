@@ -8,7 +8,7 @@ class GetSimulationUseCase(
     private val gridReaderInterface: GridReaderInterface
 ): UseCase.ParamsUseCase<GetSimulationUseCase.RequestParams, Simulation?> {
     override suspend fun execute(requestParams: RequestParams): Simulation? {
-        val originalGrid = gridReaderInterface.get().await() ?: return null
+        val originalGrid = gridReaderInterface.get(requestParams.inputParams.gridType).await() ?: return null
 
         return Simulation(
             moves = requestParams.inputParams.maxSteps,
