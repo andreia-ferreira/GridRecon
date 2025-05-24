@@ -28,7 +28,7 @@ fun Grid.print(
                 redTarget -> red
                 greenTarget -> green
                 highlightedPositions?.find { it == currentCoordinates } -> yellow
-                else -> {}
+                else -> ""
             }
             cellText += cellStringValue + reset
             cellText

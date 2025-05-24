@@ -8,17 +8,20 @@ class GetSimulationUseCase(
     private val gridReaderInterface: GridReaderInterface
 ): UseCase.ParamsUseCase<GetSimulationUseCase.RequestParams, Simulation?> {
     override suspend fun execute(requestParams: RequestParams): Simulation? {
-        val originalGrid = gridReaderInterface.get(requestParams.inputParams.gridType).await() ?: return null
+        val grid = gridReaderInterface.get(
+            gridType = requestParams.inputParams.gridType,
+            regenerationRate = requestParams.regenerationRate
+        ).await() ?: return null
 
         return Simulation(
             maxMoves = requestParams.inputParams.maxTurns,
             maxDuration = requestParams.inputParams.maxDuration,
-            grid = originalGrid.copy(regenerationRate = requestParams.inputParams.cellRegenerationRate),
+            grid = grid,
             startPosition = requestParams.inputParams.dronePosition
         ).also {
-            originalGrid.getCell(requestParams.inputParams.dronePosition).consume(0)
+            grid.getCell(requestParams.inputParams.dronePosition).consume(0)
         }
     }
 
-    class RequestParams(val inputParams: InputParams)
+    class RequestParams(val inputParams: InputParams, val regenerationRate: Double)
 }

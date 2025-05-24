@@ -14,7 +14,10 @@ fun main() = runBlocking {
     println(initialParameters)
 
     val simulation = getSimulationUseCase.execute(
-        GetSimulationUseCase.RequestParams(initialParameters)
+        GetSimulationUseCase.RequestParams(
+            inputParams = initialParameters,
+            regenerationRate = 0.5
+        )
     ) ?: run {
         println("Error setting up the grid")
         return@runBlocking

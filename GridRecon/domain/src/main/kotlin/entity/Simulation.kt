@@ -19,7 +19,7 @@ class Simulation(
 
     fun nextTurn() {
         currentTurn ++
-        grid.regenerateCells(currentTurn)
+        grid.regenerateAll(currentTurn)
     }
 
     fun isTimeLimitReached(): Boolean {

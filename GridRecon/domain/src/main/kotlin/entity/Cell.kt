@@ -1,25 +1,33 @@
 package net.penguin.domain.entity
 
-data class Cell(
-    val initialValue: Int
+class Cell(
+    val initialValue: Int,
+    val regenerationRate: Double = 0.0
 ) {
-    private var regenerationProgress: Double = initialValue.toDouble()
+    private var currentValue: Double = initialValue.toDouble()
     private var turnLastVisited: Int = -1
 
-    fun getValue(): Int = regenerationProgress.toInt()
+    fun getValue(): Int = currentValue.toInt()
 
-    fun consume(turn: Int): Int {
-        return if (turnLastVisited != turn) {
+    fun consume(turn: Int) {
+        if (turnLastVisited != turn) {
             turnLastVisited = turn
-            val consumed = regenerationProgress.toInt()
-            regenerationProgress -= consumed
+            val consumed = currentValue.toInt()
+            currentValue -= consumed
             consumed
-        } else 0
+        }
     }
 
-    fun regenerate(rate: Double, turn: Int) {
+    fun regenerate(turn: Int) {
         if (getValue() < initialValue && turn != turnLastVisited) {
-            regenerationProgress = minOf(initialValue.toDouble(), regenerationProgress + rate)
+            currentValue = minOf(initialValue.toDouble(), currentValue + regenerationRate)
         }
+    }
+
+    fun estimateValueAt(currentTurn: Int, targetTurn: Int): Int {
+        if (getValue() == initialValue) return getValue()
+        val elapsedTurns = targetTurn - currentTurn
+        val projectedValue = getValue() + (regenerationRate * elapsedTurns)
+        return minOf(initialValue, projectedValue.toInt())
     }
 }

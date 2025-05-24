@@ -13,7 +13,7 @@ import java.io.File
 object GridFileReader: GridReaderInterface, CoroutineScope by CoroutineScope(Dispatchers.Default) {
     private const val GRID_FOLDER = "../grids"
 
-    override fun get(gridType: GridType): Deferred<Grid?> {
+    override fun get(gridType: GridType, regenerationRate: Double): Deferred<Grid?> {
         return async {
             val content = getFileContent(gridType)
             val lines = content?.lines()?.filter { it.isNotBlank() }
@@ -23,7 +23,7 @@ object GridFileReader: GridReaderInterface, CoroutineScope by CoroutineScope(Dis
                     .takeIf { it.isNotBlank() }
                     ?.split(" ")
                     ?.mapNotNull { cell ->
-                        cell.toIntOrNull()?.let { Cell(it) }
+                        cell.toIntOrNull()?.let { Cell(initialValue = it, regenerationRate = regenerationRate) }
                     }
             }.takeIf { !it.isNullOrEmpty() }
 
