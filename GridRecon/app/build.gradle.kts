@@ -20,3 +20,17 @@ application {
     // (Note that Kotlin compiles `App.kt` to a class with FQN `com.example.app.AppKt`.)
     mainClass = "net.penguin.app.AppKt"
 }
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "net.penguin.app.AppKt"
+    }
+
+    from({
+        configurations.runtimeClasspath.get().map {
+            if (it.isDirectory) it else zipTree(it)
+        }
+    })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
