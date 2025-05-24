@@ -107,9 +107,11 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
         var totalScore = 0
         var currentPos = from
         var currentTurn = turn
+        var evaluatedPositions = mutableSetOf<Position>()
 
         repeat(stepsLeft) {
             val neighbors = currentPos.getNeighbors().filter { grid.isValidPosition(it) }
+            evaluatedPositions.addAll(neighbors)
 
             val bestNeighbor = neighbors.maxByOrNull {
                 grid.getCell(it).estimateValueAt(currentTurn, currentTurn + 1)
@@ -118,9 +120,12 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
             totalScore += grid.getCell(bestNeighbor).estimateValueAt(currentTurn, currentTurn + 1)
             currentPos = bestNeighbor
             currentTurn += 1
-
-            onEvaluate(SearchState.EvaluatingPotential(from, neighbors, bestNeighbor))
         }
+        onEvaluate(SearchState.EvaluatingPotential(
+            from = from,
+            evaluatedPositions = evaluatedPositions.toList(),
+            estimatedScore = totalScore
+        ))
 
         return totalScore
     }

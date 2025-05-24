@@ -18,4 +18,11 @@ class Grid(
     fun isValidPosition(position: Position): Boolean {
         return position.x in 0 until size && position.y in 0 until size
     }
+
+    fun copy(): Grid {
+        val copiedRows = rows.map { row ->
+            row.map { cell -> cell.copy() }
+        }
+        return Grid(copiedRows)
+    }
 }

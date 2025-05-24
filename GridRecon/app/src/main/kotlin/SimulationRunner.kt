@@ -1,5 +1,7 @@
 package net.penguin.app
 
+import net.penguin.app.ConsolePrintUtils.printGrid
+import net.penguin.app.ConsolePrintUtils.printSideBySideGrids
 import net.penguin.domain.algorithm.DroneMovementAlgorithmInterface
 import net.penguin.domain.algorithm.SearchState
 import net.penguin.domain.entity.Position
@@ -7,46 +9,45 @@ import net.penguin.domain.entity.Simulation
 
 class SimulationRunner(private val algorithmInterface: DroneMovementAlgorithmInterface) {
     fun execute(simulation: Simulation) {
+        val initialGrid = simulation.grid.copy()
         val exploredPositions = mutableSetOf<Position>()
 
         algorithmInterface.run(simulation) { state ->
             when (state) {
                 is SearchState.AddCandidate -> {
-                    println("\n=== Add candidate for Move : ${simulation.currentTurn + 1} ===")
-                    simulation.grid.print(
-                        redTarget = simulation.drone.getCurrentPosition(),
-                        highlightedPositions = simulation.drone.getPath(),
-                        greyedOutPositions = exploredPositions.toList()
-                    )
-                }
-                is SearchState.AddToBestOption -> {
-                    println("\n=== Adding best option with Score ${state.move.score} for Move ${state.move.turn} ===")
-                    simulation.grid.print(
-                        greenTarget = state.move.position,
+                    println("\n=== Add candidate for Move : ${state.move.turn} ===")
+                    printGrid(
+                        grid = simulation.grid,
+                        redTarget = state.move.position,
                         highlightedPositions = simulation.drone.getPath(),
                         greyedOutPositions = exploredPositions.toList()
                     )
                 }
                 SearchState.Begin -> {
                     println("\n=== Begin ===")
-                    simulation.grid.print(
+                    printGrid(
+                        grid = simulation.grid,
                         redTarget = simulation.startPosition,
                     )
                 }
                 is SearchState.EvaluatingPotential -> {
                     println("\n=== Evaluating potential ===")
-                    exploredPositions.addAll(state.neighbors)
+                    println("Potential score for remaining steps: ${state.estimatedScore}")
+                    exploredPositions.addAll(state.evaluatedPositions)
                     exploredPositions.add(state.from)
-                    simulation.grid.print(
+                    printGrid(
+                        grid = simulation.grid,
                         redTarget = state.from,
-                        greenTarget = state.best,
-                        highlightedPositions = state.neighbors,
+                        highlightedPositions = state.evaluatedPositions,
                         greyedOutPositions = exploredPositions.toList()
                     )
                 }
                 is SearchState.Move -> {
-                    println("\n=== Moving with current score ${simulation.drone.getCumulativeScore()} ===")
-                    simulation.grid.print(
+                    println("\n=== Moving ===")
+                    println("Turn score: ${simulation.drone.getAllMovesData().last().score} | " +
+                            "Cumulative score: ${simulation.drone.getCumulativeScore()} ")
+                    printGrid(
+                        grid = simulation.grid,
                         redTarget = simulation.drone.getCurrentPosition(),
                         highlightedPositions = simulation.drone.getPath(),
                         greyedOutPositions = exploredPositions.toList()
@@ -54,10 +55,13 @@ class SimulationRunner(private val algorithmInterface: DroneMovementAlgorithmInt
                 }
                 is SearchState.Result -> {
                     println("\n=== Final Result ===")
-                    simulation.grid.print(
-                        redTarget = simulation.drone.getCurrentPosition(),
+                    printSideBySideGrids(
+                        initialGrid = initialGrid,
+                        finalGrid = simulation.grid,
+                        redInitial = simulation.drone.getPath().first(),
+                        redFinal = simulation.drone.getPath().last(),
                         highlightedPositions = simulation.drone.getPath(),
-                        greyedOutPositions = exploredPositions.toList()
+                        explored = exploredPositions.toList()
                     )
                     println("Total Score: ${simulation.drone.getCumulativeScore()}")
                     println("Total Movements: ${simulation.drone.getPath().size - 1}")

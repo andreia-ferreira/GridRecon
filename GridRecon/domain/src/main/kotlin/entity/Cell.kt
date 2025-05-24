@@ -30,4 +30,11 @@ class Cell(
         val projectedValue = getValue() + (regenerationRate * elapsedTurns)
         return minOf(initialValue, projectedValue.toInt())
     }
+
+    fun copy(): Cell {
+        val copy = Cell(initialValue, regenerationRate)
+        copy.currentValue = this.currentValue
+        copy.turnLastVisited = this.turnLastVisited
+        return copy
+    }
 }
