@@ -1,6 +1,5 @@
 import kotlinx.coroutines.runBlocking
 import net.penguin.domain.algorithm.DroneMovementBeamAlgorithm
-import net.penguin.domain.algorithm.SearchState
 import net.penguin.domain.entity.Cell
 import net.penguin.domain.entity.Grid
 import net.penguin.domain.entity.Position
@@ -24,7 +23,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0,0)
         )
 
-        val result = DroneMovementBeamAlgorithm.run(simulation, {})
+        DroneMovementBeamAlgorithm.run(simulation, {})
 
         val expectedPath = listOf(
             Position(0, 0),
@@ -32,12 +31,12 @@ class PathFindingAlgorithmTest {
             Position(2, 0)
         )
 
-        assertEquals(expectedPath, result.path)
-        assertEquals(2, result.totalScore)
+        assertEquals(expectedPath, simulation.drone.getPath())
+        assertEquals(2, simulation.drone.getCumulativeScore())
     }
 
     @Test
-    fun `Should prefer higher value path`() = runBlocking {
+    fun `Should prefer higher value path than a lower value`() = runBlocking {
         val matrix = listOf(
             listOf(0, 0, 0),
             listOf(1, 2, 0),
@@ -50,15 +49,45 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0,0)
         )
 
-        val result = DroneMovementBeamAlgorithm.run(simulation, {})
+        DroneMovementBeamAlgorithm.run(simulation, {})
 
         val expectedPath = listOf(
             Position(0, 0),
             Position(1, 1),
         )
 
-        assertEquals(expectedPath, result.path)
-        assertEquals(2, result.totalScore)
+        assertEquals(expectedPath, simulation.drone.getPath())
+        assertEquals(2, simulation.drone.getCumulativeScore())
+    }
+
+    @Test
+    fun `Should choose the most efficient path`() = runBlocking {
+        val matrix = listOf(
+            listOf(0, 0, 0, 0),
+            listOf(0, 0, 0, 0),
+            listOf(0, 0, 0, 0),
+            listOf(1, 2, 2, 2),
+        )
+        val simulation = Simulation(
+            grid = Grid(matrix.map { it.map { Cell(it) }}),
+            maxMoves = 6,
+            maxDuration = 100000,
+            startPosition = Position(2,2)
+        )
+
+        DroneMovementBeamAlgorithm.run(simulation, {})
+
+        val expectedPath = listOf(
+            Position(2, 2),
+            Position(3, 1),
+            Position(3, 0),
+            Position(2, 0),
+            Position(1, 0),
+            Position(0, 0),
+        )
+
+        assertEquals(expectedPath, simulation.drone.getPath())
+        assertEquals(7, simulation.drone.getCumulativeScore())
     }
 
     @Test
@@ -76,7 +105,7 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0,0)
         )
 
-        val result = DroneMovementBeamAlgorithm.run(simulation, {})
+        DroneMovementBeamAlgorithm.run(simulation, {})
 
         val expectedPath = listOf(
             Position(0, 0),
@@ -85,8 +114,8 @@ class PathFindingAlgorithmTest {
             Position(3, 3),
         )
 
-        assertEquals(expectedPath, result.path)
-        assertEquals(6, result.totalScore)
+        assertEquals(expectedPath, simulation.drone.getPath())
+        assertEquals(6, simulation.drone.getCumulativeScore())
     }
 
     @Test
@@ -103,9 +132,9 @@ class PathFindingAlgorithmTest {
             startPosition = Position(1, 1)
         )
 
-        val result = DroneMovementBeamAlgorithm.run(simulation, {})
+        DroneMovementBeamAlgorithm.run(simulation, {})
 
-        assertEquals(listOf(Position(1, 1)), result.path)
+        assertEquals(listOf(Position(1, 1)), simulation.drone.getPath())
     }
 
     @Test
@@ -119,10 +148,10 @@ class PathFindingAlgorithmTest {
         )
 
         val startTime = System.currentTimeMillis()
-        val result = DroneMovementBeamAlgorithm.run(simulation, {})
+        DroneMovementBeamAlgorithm.run(simulation, {})
         val endTime = System.currentTimeMillis()
 
-        assertTrue(result.path.isNotEmpty())
+        assertTrue(simulation.drone.getPath().isNotEmpty())
         assertTrue(endTime - startTime < simulation.maxDuration)
     }
 
@@ -137,16 +166,16 @@ class PathFindingAlgorithmTest {
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}),
             maxMoves = 3,
-            maxDuration = 1000,
+            maxDuration = 100,
             startPosition = Position(0, 0)
         )
 
         val startTime = System.currentTimeMillis()
-        val result = DroneMovementBeamAlgorithm.run(simulation, {})
+        DroneMovementBeamAlgorithm.run(simulation, {})
         val endTime = System.currentTimeMillis()
 
         assertTrue(endTime - startTime < simulation.maxDuration)
-        assertTrue(result.path.isNotEmpty())
+        assertTrue(simulation.drone.getPath().isNotEmpty())
     }
 
     @Test
@@ -163,10 +192,10 @@ class PathFindingAlgorithmTest {
             startPosition = Position(1, 1)
         )
 
-        val result = DroneMovementBeamAlgorithm.run(simulation, {})
+        DroneMovementBeamAlgorithm.run(simulation, {})
 
-        assertTrue(result.path.size > 1)
-        assertEquals(0, result.totalScore)
+        assertTrue(simulation.drone.getPath().size > 1)
+        assertEquals(0, simulation.drone.getCumulativeScore())
     }
 
     @Test
@@ -185,10 +214,10 @@ class PathFindingAlgorithmTest {
             startPosition = Position(0, 0)
         )
 
-        val result = DroneMovementBeamAlgorithm.run(simulation, {})
+        DroneMovementBeamAlgorithm.run(simulation, {})
 
-        assertTrue(result.path.contains(Position(2, 2)))
-        assertTrue(result.totalScore > 20)
+        assertTrue(simulation.drone.getPath().contains(Position(2, 2)))
+        assertTrue(simulation.drone.getCumulativeScore() > 20)
     }
 
     @Test
@@ -201,18 +230,13 @@ class PathFindingAlgorithmTest {
         val simulation = Simulation(
             grid = Grid(matrix.map { it.map { Cell(it) }}, regenerationRate = 0.5),
             maxMoves = 4,
-            maxDuration = 1000,
+            maxDuration = 10000000,
             startPosition = Position(0, 0)
         )
 
-        val result = DroneMovementBeamAlgorithm.run(simulation, {
-            if (it is SearchState.Move) {
-                simulation.grid.regenerateCells(it.dronePosition.currentTurn)
-                simulation.grid.getCell(it.dronePosition.position).consume(it.dronePosition.currentTurn)
-            }
-        })
+        DroneMovementBeamAlgorithm.run(simulation, {})
 
-        assertTrue(result.path.contains(Position(1, 1)))
-        assertTrue(result.totalScore > 10)
+        assertTrue(simulation.drone.getPath().contains(Position(1, 1)))
+        assertTrue(simulation.drone.getCumulativeScore() > 10)
     }
 }

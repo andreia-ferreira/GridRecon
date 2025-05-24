@@ -22,8 +22,4 @@ data class Cell(
             regenerationProgress = minOf(initialValue.toDouble(), regenerationProgress + rate)
         }
     }
-
-    override fun toString(): String {
-        return "${getValue()}"
-    }
 }

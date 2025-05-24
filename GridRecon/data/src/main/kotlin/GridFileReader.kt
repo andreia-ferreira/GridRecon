@@ -22,8 +22,8 @@ object GridFileReader: GridReaderInterface, CoroutineScope by CoroutineScope(Dis
                 line.trim()
                     .takeIf { it.isNotBlank() }
                     ?.split(" ")
-                    ?.map { cell ->
-                        Cell(cell.toInt())
+                    ?.mapNotNull { cell ->
+                        cell.toIntOrNull()?.let { Cell(it) }
                     }
             }.takeIf { !it.isNullOrEmpty() }
 
