@@ -29,7 +29,7 @@ class InitializeSimulationUseCaseTest {
         val position = Position(2, 3)
         val gridType = GridType.SMALL
         val regenerationRate = 0.5
-        val inputParams = SimulationParametersGenerator.generate(dronePosition = position, gridType = gridType, cellRegenerationRate = regenerationRate)
+        val inputParams = SimulationParametersGenerator.generate(dronePositions = listOf(position), gridType = gridType, cellRegenerationRate = regenerationRate)
         val requestParams = InitializeSimulationUseCase.RequestParams(inputParams)
 
         useCase.execute(requestParams)
