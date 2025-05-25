@@ -11,7 +11,7 @@ The items printed on the console have different colors depending on their purpos
 - Yellow: Path
 - Green: positions that are being evaluated as the next step
 - Black background: the positions that were already explored
-<img src="https://github.com/user-attachments/assets/fc01c11e-ca72-41b2-851c-ef0dc27384f7" width="500"/>
+<img src="https://github.com/user-attachments/assets/fc01c11e-ca72-41b2-851c-ef0dc27384f7" width="600"/>
 
 #### Drone movement algorithm
 This program implements an adaptation of a Beam Search algorithm in order to find the best path across the grid.
@@ -21,8 +21,7 @@ Note: The regeneration rate is hardcoded at 0.25 at the moment. Meaning that eac
 
 ### Project Structure
 This is a multi module app that follows Clean Architecture principles.
-![Screenshot from 2025-05-25 19-45-57](https://github.com/user-attachments/assets/30d4d639-ec49-4022-aebe-ffd7e8f34432)
-<img src="https://github.com/user-attachments/assets/30d4d639-ec49-4022-aebe-ffd7e8f34432" width="500"/>
+<img src="https://github.com/user-attachments/assets/30d4d639-ec49-4022-aebe-ffd7e8f34432" width="600"/>
 
 ### Testing
 In the app modules, the `SimulationIntegrationTest` should test the overall functioning of the process given a mocked grid.
