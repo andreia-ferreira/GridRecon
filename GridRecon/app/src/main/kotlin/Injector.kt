@@ -27,11 +27,15 @@ object Injector {
         return GetCurrentGridUseCase(gridRepository)
     }
 
-    fun provideGetDroneMovesUseCase(): GetDroneMovesUseCase {
-        return GetDroneMovesUseCase(droneRepository)
+    fun provideGetAllDroneMovesUseCase(): GetAllDroneMovesUseCase {
+        return GetAllDroneMovesUseCase(droneRepository)
     }
 
     fun provideGetAvailableDronesUseCase(): GetAvailableDronesUseCase {
         return GetAvailableDronesUseCase(droneRepository)
+    }
+
+    fun provideGetLatestDroneMoveUseCase(): GetLatestDroneMovesUseCase {
+        return GetLatestDroneMovesUseCase(droneRepository)
     }
 }

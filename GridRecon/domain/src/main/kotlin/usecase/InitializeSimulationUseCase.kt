@@ -16,8 +16,10 @@ class InitializeSimulationUseCase(
             regenerationRate = requestParams.simulationParameters.cellRegenerationRate,
         )
 
-        droneRepositoryInterface.add(Drone(), requestParams.simulationParameters.dronePosition)
-        gridRepositoryInterface.consumeCell(position = requestParams.simulationParameters.dronePosition, turn = 0)
+        requestParams.simulationParameters.dronePositions.forEachIndexed { index, position ->
+            droneRepositoryInterface.add(Drone(index.toLong()), position)
+            gridRepositoryInterface.consumeCell(position = position, turn = 0)
+        }
     }
 
     class RequestParams(val simulationParameters: SimulationParameters)

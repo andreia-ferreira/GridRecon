@@ -1,11 +1,17 @@
 package algorithm
 
-import entity.CandidateNextMove
-import entity.Drone
-import entity.Grid
-import entity.SimulationParameters
+import entity.*
 
 interface DroneMovementAlgorithmInterface {
-    fun getCandidates(latestMove: Drone.Move, grid: Grid, simulationParameters: SimulationParameters): List<CandidateNextMove>
-    fun getNextBestMove(latestMove: Drone.Move, candidates: List<CandidateNextMove>, simulationParameters: SimulationParameters): Drone.Move?
+    fun getCandidates(
+        latestMove: Drone.Move,
+        grid: Grid,
+        simulationParameters: SimulationParameters,
+        forbidPositions: List<Position> = emptyList()
+    ): List<CandidateNextMove>
+    fun getNextBestMove(
+        latestMove: Drone.Move,
+        candidates: List<CandidateNextMove>,
+        simulationParameters: SimulationParameters
+    ): Drone.Move?
 }

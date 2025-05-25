@@ -12,14 +12,14 @@ object SimulationParametersGenerator {
         maxDuration: Long = 100,
         gridType: GridType = GridType.MEDIUM,
         cellRegenerationRate: Double = 0.0,
-        dronePosition: Position,
+        dronePositions: List<Position>,
         printToConsole: Boolean = false
     ): SimulationParameters {
         return SimulationParameters(
             maxTurns = maxTurns,
             maxDuration = maxDuration,
             gridType = gridType,
-            dronePosition = dronePosition,
+            dronePositions = dronePositions,
             cellRegenerationRate = cellRegenerationRate,
             printIntermediateSteps = printToConsole
         )

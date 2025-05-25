@@ -34,27 +34,42 @@ object UserInputReader {
                 value
             }
         )
-        val dronePosition = requestInput(
-            prompt = "Please insert the initial drone coordinates separated by comma (x, y): ",
-            parser = { input ->
-                val coordinates = input?.split(",")?.map { it.trim().toIntOrNull() }
-                    ?: throw NumberFormatException()
-                if (coordinates.size != 2 || coordinates.any { it == null }) {
-                    throw IllegalArgumentException("Please enter exactly two valid integers sepparated by a comma.")
+
+        val dronePositions = mutableListOf<Position>()
+        do {
+            val index = dronePositions.size + 1
+            val position = requestInput(
+                prompt = "Please insert the coordinates for drone #$index separated by a comma (x, y): ",
+                parser = { input ->
+                    val coordinates =
+                        input?.split(",")?.map { it.trim().toIntOrNull() } ?: throw NumberFormatException()
+                    if (coordinates.size != 2 || coordinates.any { it == null }) {
+                        throw IllegalArgumentException("Please enter exactly two valid integers separated by a comma.")
+                    }
+                    val (x, y) = coordinates.filterNotNull()
+                    if (x >= gridType.size || y >= gridType.size || x < 0 || y < 0) {
+                        throw IllegalArgumentException("Coordinates must be within grid bounds.")
+                    }
+                    val result = Position(x, y)
+                    if (result in dronePositions) {
+                        throw IllegalArgumentException("This position has already been taken by another drone.")
+                    }
+                    result
                 }
-                val (x, y) = coordinates.filterNotNull()
-                if (x >= gridType.size || y >= gridType.size) {
-                    throw IllegalArgumentException("Coordinates must be within grid bounds.")
-                }
-                Position(x, y)
-            }
-        )
+            )
+            dronePositions.add(position)
+
+            if (dronePositions.size >= 10) break // limit to prevent infinite spam
+
+            println("Add another drone? (y/n): ")
+            val continueInput = readLine()?.trim()?.lowercase()
+        } while (continueInput == "y" || continueInput == "yes")
 
         return SimulationParameters(
             gridType = gridType,
             maxTurns = maxSteps,
             maxDuration = maxDuration,
-            dronePosition = dronePosition,
+            dronePositions = dronePositions,
             cellRegenerationRate = 0.25,
             printIntermediateSteps = gridType == GridType.SMALL // printing to the console can have great impact with bigger grids
         )

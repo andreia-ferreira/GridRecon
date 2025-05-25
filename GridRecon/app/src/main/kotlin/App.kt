@@ -14,9 +14,10 @@ fun main() = runBlocking {
     SimulationRunner(
         algorithmInterface = DroneMovementBeamAlgorithm,
         getCurrentGridUseCase = injector.provideGetCurrentGridUseCase(),
-        getDroneMovesUseCase = injector.provideGetDroneMovesUseCase(),
+        getAllDroneMovesUseCase = injector.provideGetAllDroneMovesUseCase(),
         initializeSimulationUseCase = injector.provideInitializeGridUseCase(),
         moveDroneUseCase = injector.provideMoveDroneUseCase(),
-        getAvailableDronesUseCase = injector.provideGetAvailableDronesUseCase()
+        getAvailableDronesUseCase = injector.provideGetAvailableDronesUseCase(),
+        getLatestDroneMovesUseCase = injector.provideGetLatestDroneMoveUseCase()
     ).execute(simulationParameters = initialParameters)
 }

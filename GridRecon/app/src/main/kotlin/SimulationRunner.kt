@@ -13,7 +13,8 @@ class SimulationRunner(
     private val getAvailableDronesUseCase: GetAvailableDronesUseCase,
     private val getCurrentGridUseCase: GetCurrentGridUseCase,
     private val moveDroneUseCase: MoveDroneUseCase,
-    private val getDroneMovesUseCase: GetDroneMovesUseCase,
+    private val getAllDroneMovesUseCase: GetAllDroneMovesUseCase,
+    private val getLatestDroneMovesUseCase: GetLatestDroneMovesUseCase,
     private val algorithmInterface: DroneMovementAlgorithmInterface,
 ) {
     private var exploredPositions = mutableSetOf<Position>()
@@ -33,36 +34,44 @@ class SimulationRunner(
             printIntermediateSteps = true
         }
 
+        displayState(SearchState.Begin)
         val startTime = System.currentTimeMillis()
         var currentTurn = 0
-
-        displayState(SearchState.Begin)
 
         while (
             !isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration) &&
             !isOutOfMoves(currentTurn = currentTurn, maxTurns = simulationParameters.maxTurns)
         ) {
-            val candidates = getCandidatesNextMove(simulationParameters)
-            if (candidates.isEmpty() || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
+            for (drone in drones) {
+                val candidates = getCandidatesNextMove(simulationParameters, drone)
+                if (candidates.isEmpty() || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
 
-            val nextMove = pickBestMove(candidates, simulationParameters)
-            if (nextMove == null || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
-            executeMove(nextMove)
+                val nextMove = pickBestMove(candidates, simulationParameters, drone)
+                if (nextMove == null || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
+                executeMove(nextMove, drone)
 
-            currentTurn = nextMove.turn
+                currentTurn = nextMove.turn
+            }
         }
 
         elapsedTime = System.currentTimeMillis() - startTime
         displayState(SearchState.Finish)
     }
 
-    private suspend fun getCandidatesNextMove(simulationParameters: SimulationParameters): List<CandidateNextMove> {
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(drones.first().id))
+    private suspend fun getCandidatesNextMove(
+        simulationParameters: SimulationParameters,
+        drone: Drone
+    ): List<CandidateNextMove> {
+        val latestDroneMove = getLatestDroneMovesUseCase.execute(GetLatestDroneMovesUseCase.RequestParams(drone.id))
+        val otherDronesPositions = drones.map {
+            getLatestDroneMovesUseCase.execute(GetLatestDroneMovesUseCase.RequestParams(it.id)).position
+        }
         val grid = getCurrentGridUseCase.execute()
         val candidates = algorithmInterface.getCandidates(
-            latestMove = droneMoves.last(),
+            latestMove = latestDroneMove,
             grid = grid,
             simulationParameters = simulationParameters,
+            forbidPositions = otherDronesPositions
         )
         exploredPositions.addAll(candidates.map { it.second.evaluatedPositions }.flatten())
         exploredPositions.addAll(candidates.map { it.second.from })
@@ -70,14 +79,18 @@ class SimulationRunner(
         return candidates
     }
 
-    private suspend fun pickBestMove(candidates: List<CandidateNextMove>, simulationParameters: SimulationParameters): Drone.Move? {
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
-        return algorithmInterface.getNextBestMove(droneMoves.last(), candidates, simulationParameters)
+    private suspend fun pickBestMove(
+        candidates: List<CandidateNextMove>,
+        simulationParameters: SimulationParameters,
+        drone: Drone
+    ): Drone.Move? {
+        val latestDroneMove = getLatestDroneMovesUseCase.execute(GetLatestDroneMovesUseCase.RequestParams(drone.id))
+        return algorithmInterface.getNextBestMove(latestDroneMove, candidates, simulationParameters)
     }
 
-    private suspend fun executeMove(move: Drone.Move) {
+    private suspend fun executeMove(move: Drone.Move, drone: Drone) {
         moveDroneUseCase.execute(MoveDroneUseCase.RequestParams(
-            droneId = drones.first().id,
+            droneId = drone.id,
             droneMove = move
         ))
         displayState(SearchState.Move(move))
@@ -94,16 +107,19 @@ class SimulationRunner(
     private suspend fun displayState(state: SearchState) {
         if (!printIntermediateSteps && state != SearchState.Finish) return
         val grid = getCurrentGridUseCase.execute()
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(drones.first().id))
+        val dronesMoves = drones.associateWith { drone ->
+            getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(drone.id))
+        }
 
         when (state) {
             SearchState.Begin -> {
                 println("\n=== Begin ===")
                 printGrid(
                     grid = grid,
-                    redTarget = droneMoves.last().position,
+                    redTargets = dronesMoves.values.mapNotNull { it.lastOrNull()?.position },
                 )
             }
+
             is SearchState.PotentialCandidates -> {
                 println("\n=== Evaluating potential candidates ===")
                 println(state.candidates.joinToString("\n") {
@@ -112,20 +128,23 @@ class SimulationRunner(
                 })
                 printGrid(
                     grid = grid,
-                    redTarget = droneMoves.last().position,
+                    redTargets = dronesMoves.values.mapNotNull { it.lastOrNull()?.position },
                     greenTargets = state.candidates.map { it.second.from },
-                    highlightedPositions = droneMoves.map { it.position },
+                    highlightedPositions = dronesMoves.values.flatten().map { it.position },
                     greyedOutPositions = exploredPositions.toList()
                 )
             }
+
             is SearchState.Move -> {
                 println("\n=== Moving ===")
-                println("Turn ${state.move?.turn ?: 0} score: ${state.move?.score ?: 0} | " +
-                        "Cumulative score: ${state.move?.cumulativeScore ?: 0} ")
+                println(
+                    "Turn ${state.move?.turn ?: 0} score: ${state.move?.score ?: 0} | " +
+                            "Cumulative score: ${state.move?.cumulativeScore ?: 0} "
+                )
                 printGrid(
                     grid = grid,
-                    redTarget = droneMoves.last().position,
-                    highlightedPositions = droneMoves.map { it.position },
+                    redTargets = dronesMoves.values.mapNotNull { it.lastOrNull()?.position },
+                    highlightedPositions = dronesMoves.values.flatten().map { it.position },
                     greyedOutPositions = exploredPositions.toList()
                 )
             }
@@ -135,19 +154,23 @@ class SimulationRunner(
                 printSideBySideGrids(
                     initialGrid = initialGrid,
                     finalGrid = grid,
-                    redInitial = droneMoves.first().position,
-                    redFinal = droneMoves.last().position,
-                    highlightedPositions = droneMoves.map { it.position },
+                    redInitials = dronesMoves.values.mapNotNull { it.firstOrNull()?.position },
+                    redFinals = dronesMoves.values.mapNotNull { it.lastOrNull()?.position },
+                    highlightedPositions = dronesMoves.values.flatten().map { it.position },
                     explored = exploredPositions.toList()
                 )
-                println("Total Score: ${droneMoves.last().cumulativeScore}")
-                println("Total Movements: ${droneMoves.size - 1}")
+                val totalScore = dronesMoves.values.sumOf { it.lastOrNull()?.cumulativeScore ?: 0 }
+                val totalMovements = dronesMoves[drones.first()]?.lastIndex ?: 0
+                println("Total Score: $totalScore")
+                println("Total Movements: $totalMovements")
                 println("Elapsed Time: $elapsedTime")
-                println("Final path:\n${
-                    droneMoves.joinToString("\n") {
-                        "Turn ${it.turn} : (${it.position.x}, ${it.position.y}) | Score: ${it.score}"
+                drones.forEach { drone ->
+                    val moves = dronesMoves[drone] ?: emptyList()
+                    println("\nFinal path for drone ${drone.id}:")
+                    moves.forEach {
+                        println("Turn ${it.turn} : (${it.position.x}, ${it.position.y}) | Score: ${it.score}")
                     }
-                }")
+                }
             }
         }
     }

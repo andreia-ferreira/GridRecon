@@ -9,12 +9,13 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
     override fun getCandidates(
         latestMove: Drone.Move,
         grid: Grid,
-        simulationParameters: SimulationParameters
+        simulationParameters: SimulationParameters,
+        forbidPositions: List<Position>
     ): List<CandidateNextMove> {
         val candidates = mutableListOf<CandidateNextMove>()
         val nextTurn = latestMove.turn + 1
 
-        val neighbors = latestMove.position.getValidNeighbors(grid.size)
+        val neighbors = latestMove.position.getValidNeighbors(grid.size).filterNot { it in forbidPositions }
 
         for (neighbor in neighbors) {
             if (nextTurn > simulationParameters.maxTurns) continue

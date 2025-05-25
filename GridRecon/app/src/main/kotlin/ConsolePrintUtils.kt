@@ -12,14 +12,14 @@ object ConsolePrintUtils {
 
     fun printGrid(
         grid: Grid,
-        redTarget: Position? = null,
+        redTargets: List<Position>? = null,
         greenTargets: List<Position>? = null,
         highlightedPositions: List<Position>? = null,
         greyedOutPositions: List<Position>? = null
     ) {
         getStyledLines(
             grid = grid,
-            redTarget = redTarget,
+            redTargets = redTargets,
             greenTargets = greenTargets,
             highlightedPositions = highlightedPositions,
             greyedOutPositions = greyedOutPositions
@@ -29,21 +29,21 @@ object ConsolePrintUtils {
     fun printSideBySideGrids(
         initialGrid: Grid?,
         finalGrid: Grid,
-        redInitial: Position? = null,
-        redFinal: Position? = null,
+        redInitials: List<Position>? = null,
+        redFinals: List<Position>? = null,
         highlightedPositions: List<Position> = emptyList(),
         explored: List<Position> = emptyList()
     ) {
         initialGrid?.let {
             val leftLines = getStyledLines(
                 grid = initialGrid,
-                redTarget = redInitial,
+                redTargets = redInitials,
                 highlightedPositions = highlightedPositions
             )
 
             val rightLines = getStyledLines(
                 grid = finalGrid,
-                redTarget = redFinal,
+                redTargets = redFinals,
                 highlightedPositions = highlightedPositions,
                 greyedOutPositions = explored
             )
@@ -54,7 +54,7 @@ object ConsolePrintUtils {
             }
         } ?: getStyledLines(
             grid = finalGrid,
-            redTarget = redFinal,
+            redTargets = redFinals,
             highlightedPositions = highlightedPositions,
             greyedOutPositions = explored
         ).forEach { println(it) }
@@ -62,7 +62,7 @@ object ConsolePrintUtils {
 
     private fun getStyledLines(
         grid: Grid,
-        redTarget: Position? = null,
+        redTargets: List<Position>? = null,
         greenTargets: List<Position>? = null,
         highlightedPositions: List<Position>? = null,
         greyedOutPositions: List<Position>? = null
@@ -78,7 +78,7 @@ object ConsolePrintUtils {
                 }
 
                 cellText += when (currentCoordinates) {
-                    redTarget -> RED
+                    redTargets?.find { it == currentCoordinates } -> RED
                     greenTargets?.find { it == currentCoordinates } -> GREEN
                     highlightedPositions?.find { it == currentCoordinates } -> YELLOW
                     else -> ""

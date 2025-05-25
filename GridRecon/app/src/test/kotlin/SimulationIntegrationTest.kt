@@ -26,7 +26,7 @@ class SimulationIntegrationTest {
     private val algorithmInterface = DroneMovementBeamAlgorithm
     private val getCurrentGridUseCase = GetCurrentGridUseCase(gridRepository)
     private val moveDroneUseCase = MoveDroneUseCase(gridRepository, droneRepository)
-    private val getDroneMovesUseCase = GetDroneMovesUseCase(droneRepository)
+    private val getAllDroneMovesUseCase = GetAllDroneMovesUseCase(droneRepository)
     private val getAvailableDronesUseCase = GetAvailableDronesUseCase(droneRepository)
     private val initializeGridUseCase = InitializeSimulationUseCase(gridRepository, droneRepository)
     private lateinit var simulationRunner: SimulationRunner
@@ -37,7 +37,7 @@ class SimulationIntegrationTest {
             initializeSimulationUseCase = initializeGridUseCase,
             getCurrentGridUseCase = getCurrentGridUseCase,
             moveDroneUseCase = moveDroneUseCase,
-            getDroneMovesUseCase = getDroneMovesUseCase,
+            getAllDroneMovesUseCase = getAllDroneMovesUseCase,
             algorithmInterface = algorithmInterface,
             getAvailableDronesUseCase = getAvailableDronesUseCase
         )
@@ -60,7 +60,7 @@ class SimulationIntegrationTest {
             Position(2, 0)
         )
         
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertEquals(expectedPath, droneMoves.getPath())
         assertEquals(2, droneMoves.getCumulativeScore())
     }
@@ -81,7 +81,7 @@ class SimulationIntegrationTest {
             Position(1, 1),
         )
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertEquals(expectedPath, droneMoves.getPath())
         assertEquals(2, droneMoves.getCumulativeScore())
     }
@@ -100,7 +100,7 @@ class SimulationIntegrationTest {
 
         simulationRunner.execute(inputParams)
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertEquals(7, droneMoves.getCumulativeScore())
         assertTrue(droneMoves.getPath().contains(Position(3,0)))
         
@@ -125,7 +125,7 @@ class SimulationIntegrationTest {
             Position(3, 3),
         )
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertEquals(expectedPath, droneMoves.getPath())
         assertEquals(6, droneMoves.getCumulativeScore())
     }
@@ -142,7 +142,7 @@ class SimulationIntegrationTest {
 
         simulationRunner.execute(inputParams)
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertEquals(listOf(Position(0, 0)), droneMoves.getPath())
     }
 
@@ -154,7 +154,7 @@ class SimulationIntegrationTest {
 
         simulationRunner.execute(inputParams)
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertTrue(droneMoves.getPath().isNotEmpty())
         assertTrue(simulationRunner.elapsedTime <= inputParams.maxDuration)
     }
@@ -172,7 +172,7 @@ class SimulationIntegrationTest {
 
         simulationRunner.execute(inputParams)
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertTrue(droneMoves.getPath().size > 1)
         assertTrue (simulationRunner.elapsedTime <= inputParams.maxDuration)
     }
@@ -185,7 +185,7 @@ class SimulationIntegrationTest {
 
         simulationRunner.execute(inputParams)
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertTrue(droneMoves.getPath().size > 1)
         assertEquals (0, droneMoves.getCumulativeScore())
     }
@@ -204,7 +204,7 @@ class SimulationIntegrationTest {
 
         simulationRunner.execute(inputParams)
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertTrue(droneMoves.getPath().contains(Position(2, 2)))
         assertTrue (droneMoves.getCumulativeScore() > 20)
     }
@@ -221,7 +221,7 @@ class SimulationIntegrationTest {
 
         simulationRunner.execute(inputParams)
 
-        val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
+        val droneMoves = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
         assertTrue(droneMoves.getPath().contains(Position(1, 1)))
         assertTrue (droneMoves.getCumulativeScore() > 10)
     }
