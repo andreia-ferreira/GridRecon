@@ -1,7 +1,7 @@
 package net.penguin.app
 
-import net.penguin.domain.entity.Grid
-import net.penguin.domain.entity.Position
+import entity.Grid
+import entity.Position
 
 object ConsolePrintUtils {
     private const val GREEN = "\u001B[32m"
@@ -13,50 +13,57 @@ object ConsolePrintUtils {
     fun printGrid(
         grid: Grid,
         redTarget: Position? = null,
-        greenTarget: Position? = null,
+        greenTargets: List<Position>? = null,
         highlightedPositions: List<Position>? = null,
         greyedOutPositions: List<Position>? = null
     ) {
         getStyledLines(
             grid = grid,
             redTarget = redTarget,
-            greenTarget = greenTarget,
+            greenTargets = greenTargets,
             highlightedPositions = highlightedPositions,
             greyedOutPositions = greyedOutPositions
         ).forEach { println(it) }
     }
 
     fun printSideBySideGrids(
-        initialGrid: Grid,
+        initialGrid: Grid?,
         finalGrid: Grid,
         redInitial: Position? = null,
         redFinal: Position? = null,
         highlightedPositions: List<Position> = emptyList(),
         explored: List<Position> = emptyList()
     ) {
-        val leftLines = getStyledLines(
-            grid = initialGrid,
-            redTarget = redInitial,
-            highlightedPositions = highlightedPositions
-        )
+        initialGrid?.let {
+            val leftLines = getStyledLines(
+                grid = initialGrid,
+                redTarget = redInitial,
+                highlightedPositions = highlightedPositions
+            )
 
-        val rightLines = getStyledLines(
+            val rightLines = getStyledLines(
+                grid = finalGrid,
+                redTarget = redFinal,
+                highlightedPositions = highlightedPositions,
+                greyedOutPositions = explored
+            )
+
+            println("Initial Grid VS Final Grid")
+            for ((left, right) in leftLines.zip(rightLines)) {
+                println("$left   |  $right")
+            }
+        } ?: getStyledLines(
             grid = finalGrid,
             redTarget = redFinal,
             highlightedPositions = highlightedPositions,
             greyedOutPositions = explored
         )
-
-        println("Initial Grid VS Final Grid")
-        for ((left, right) in leftLines.zip(rightLines)) {
-            println("$left   |  $right")
-        }
     }
 
     private fun getStyledLines(
         grid: Grid,
         redTarget: Position? = null,
-        greenTarget: Position? = null,
+        greenTargets: List<Position>? = null,
         highlightedPositions: List<Position>? = null,
         greyedOutPositions: List<Position>? = null
     ): List<String> {
@@ -72,7 +79,7 @@ object ConsolePrintUtils {
 
                 cellText += when (currentCoordinates) {
                     redTarget -> RED
-                    greenTarget -> GREEN
+                    greenTargets?.find { it == currentCoordinates } -> GREEN
                     highlightedPositions?.find { it == currentCoordinates } -> YELLOW
                     else -> ""
                 }

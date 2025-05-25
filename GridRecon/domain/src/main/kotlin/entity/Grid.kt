@@ -1,7 +1,7 @@
-package net.penguin.domain.entity
+package entity
 
-class Grid(
-    val rows: List<List<Cell>>
+data class Grid(
+    val rows: List<MutableList<Cell>>
 ) {
     val size = rows.size
 
@@ -9,19 +9,13 @@ class Grid(
         return rows[rows.lastIndex - position.y][position.x]
     }
 
-    fun regenerateAll(turn: Int) {
-        if (turn > 0) {
-            rows.flatten().forEach { it.regenerate(turn) }
-        }
+    fun replaceCell(cell: Cell, position: Position) {
+        rows[rows.lastIndex - position.y][position.x] = cell
     }
 
-    fun isValidPosition(position: Position): Boolean {
-        return position.x in 0 until size && position.y in 0 until size
-    }
-
-    fun copy(): Grid {
+    fun deepCopy(): Grid {
         val copiedRows = rows.map { row ->
-            row.map { cell -> cell.copy() }
+            row.map { it.copy() }.toMutableList()
         }
         return Grid(copiedRows)
     }

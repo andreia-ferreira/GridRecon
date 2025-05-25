@@ -1,116 +1,83 @@
-package net.penguin.domain.algorithm
+package algorithm
 
-import net.penguin.domain.entity.Drone
-import net.penguin.domain.entity.Grid
-import net.penguin.domain.entity.Position
-import net.penguin.domain.entity.Simulation
+import entity.Drone
+import entity.Grid
+import entity.InputParams
+import entity.Position
 
-@JvmInline
-value class PotentialScore(val value: Int)
-private typealias Candidate = Pair<Drone.Move, PotentialScore>
+data class PotentialScore(val value: Int, val from: Position, val evaluatedPositions: List<Position>)
+typealias CandidateNextMove = Pair<Drone.Move, PotentialScore>
 
 object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
     private const val BEAM_WIDTH = 10
 
-    override fun run(
-        simulation: Simulation,
-        onStep: (SearchState) -> Unit
-    ) {
-        simulation.startTimer()
+    override fun getCandidates(
+        latestMove: Drone.Move,
+        grid: Grid,
+        inputParams: InputParams
+    ): List<CandidateNextMove> {
+        val candidates = mutableListOf<CandidateNextMove>()
+        val nextTurn = latestMove.turn + 1
 
-        var currentBeam = listOf(simulation.drone.getAllMovesData().first())
+        val neighbors = latestMove.position.getValidNeighbors(grid.size)
 
-        onStep(SearchState.Begin)
+        for (neighbor in neighbors) {
+            if (nextTurn > inputParams.maxTurns) continue
 
-        while (currentBeam.isNotEmpty() && !simulation.isMovementLimitReached() && !simulation.isTimeLimitReached()) {
-            val candidates = expandBeam(
-                currentBeam = currentBeam,
-                simulation = simulation,
-                onStep = onStep
+
+            val cellValue = grid.getCell(neighbor).getValue()
+            val cumulativeScore = latestMove.cumulativeScore + cellValue
+            val potentialScore = estimatePotential(
+                grid = grid,
+                from = neighbor,
+                turn = nextTurn,
+                stepsLeft = inputParams.maxTurns - nextTurn
             )
-            if (candidates.isEmpty()) break
 
-            // Keep top BEAM_WIDTH candidates
-            val sortedCandidates = candidates
-                .sortedWith(compareByDescending<Candidate> { it.second.value }
-                    .thenByDescending { it.first.score })
-                .take(BEAM_WIDTH)
+            val nextDronePosition = Drone.Move(
+                position = neighbor,
+                turn = nextTurn,
+                score = cellValue,
+                parent = latestMove,
+                cumulativeScore = cumulativeScore
+            )
 
-            val bestNextMove = sortedCandidates
-                .map { it.first }
-                .firstOrNull {
-                    it.turn == simulation.currentTurn + 1 && it.position.isNeighbor(simulation.drone.getCurrentPosition())
-                }
-
-            if (bestNextMove == null) break
-
-            simulation.moveDrone(bestNextMove)
-            currentBeam = listOf(bestNextMove)
-            onStep(SearchState.Move)
-
-            simulation.nextTurn()
-        }
-
-        val result = SearchState.Result
-        onStep(result)
-    }
-
-    private fun expandBeam(
-        currentBeam: List<Drone.Move>,
-        simulation: Simulation,
-        onStep: (SearchState) -> Unit
-    ): List<Candidate> {
-        val candidates = mutableListOf<Candidate>()
-        val nextTurn = simulation.currentTurn + 1
-
-        for (potentialPos in currentBeam) {
-            val neighbors = potentialPos.position.getNeighbors().filter {
-                simulation.grid.isValidPosition(it)
-            }
-
-            for (neighbor in neighbors) {
-                if (nextTurn > simulation.maxMoves) continue
-
-                val cellValue = simulation.grid.getCell(neighbor).getValue()
-                val cumulativeScore = potentialPos.cumulativeScore + cellValue
-
-                val estimatedTotalScore = cumulativeScore + estimatePotential(
-                    onEvaluate = onStep,
-                    grid = simulation.grid,
-                    from = neighbor,
-                    turn = nextTurn,
-                    stepsLeft = simulation.maxMoves - nextTurn
-                )
-
-                val nextDronePosition = Drone.Move(
-                    position = neighbor,
-                    turn = nextTurn,
-                    score = cellValue,
-                    parent = potentialPos,
-                    cumulativeScore = cumulativeScore
-                )
-
-                candidates.add(nextDronePosition to PotentialScore(estimatedTotalScore))
-                onStep(SearchState.AddCandidate(nextDronePosition))
-            }
+            candidates.add(nextDronePosition to potentialScore)
         }
         return candidates
     }
 
+    override fun getNextBestMove(
+        latestMove: Drone.Move,
+        candidates: List<CandidateNextMove>
+    ): Drone.Move? {
+        val sortedCandidates = candidates
+            .sortedWith(compareByDescending<CandidateNextMove> { it.second.value + it.first.score }
+                .thenByDescending { it.first.score })
+            .take(BEAM_WIDTH)
+
+        val bestNextMove = sortedCandidates
+            .map { it.first }
+            .firstOrNull {
+                it.turn == latestMove.turn + 1 && it.position.isNeighbor(latestMove.position)
+            }
+
+        return bestNextMove
+    }
+
     private fun estimatePotential(
-        onEvaluate: (SearchState) -> Unit,
         grid: Grid,
         from: Position,
         turn: Int,
         stepsLeft: Int
-    ): Int {
+    ): PotentialScore {
         var totalScore = 0
         var currentPos = from
         var currentTurn = turn
-        var evaluatedPositions = mutableSetOf<Position>()
+        val evaluatedPositions = mutableSetOf<Position>()
 
         repeat(stepsLeft) {
-            val neighbors = currentPos.getNeighbors().filter { grid.isValidPosition(it) }
+            val neighbors = currentPos.getValidNeighbors(grid.size)
             evaluatedPositions.addAll(neighbors)
 
             val bestNeighbor = neighbors.maxByOrNull {
@@ -121,13 +88,7 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
             currentPos = bestNeighbor
             currentTurn += 1
         }
-        onEvaluate(SearchState.EvaluatingPotential(
-            from = from,
-            evaluatedPositions = evaluatedPositions.toList(),
-            estimatedScore = totalScore
-        ))
 
-        return totalScore
+        return PotentialScore(value = totalScore, from = from, evaluatedPositions = evaluatedPositions.toList())
     }
-
 }

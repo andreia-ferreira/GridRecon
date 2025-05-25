@@ -1,22 +1,37 @@
 package net.penguin.app
 
-import net.penguin.data.GridFileReader
-import net.penguin.domain.GridReaderInterface
-import net.penguin.domain.usecase.GetOptimalPathUseCase
-import net.penguin.domain.usecase.GetSimulationUseCase
+import datasource.GridDataSource
+import repository.DroneRepository
+import repository.DroneRepositoryInterface
+import repository.GridRepository
+import repository.GridRepositoryInterface
+import usecase.*
 
 object Injector {
-    private fun provideGridReader(): GridReaderInterface {
-        return GridFileReader
+    private val gridRepository: GridRepositoryInterface by lazy {
+        GridRepository(GridDataSource)
+    }
+    private val droneRepository: DroneRepositoryInterface by lazy {
+        DroneRepository()
     }
 
-    fun provideGetSimulationUseCase(): GetSimulationUseCase {
-        return GetSimulationUseCase(
-            provideGridReader()
-        )
+    fun provideInitializeGridUseCase(): InitializeSimulationUseCase {
+        return InitializeSimulationUseCase(gridRepository, droneRepository)
     }
 
-    fun provideGetOptimalPathUseCase(): GetOptimalPathUseCase {
-        return GetOptimalPathUseCase()
+    fun provideMoveDroneUseCase(): MoveDroneUseCase {
+        return MoveDroneUseCase(gridRepository, droneRepository)
+    }
+
+    fun provideGetCurrentGridUseCase(): GetCurrentGridUseCase {
+        return GetCurrentGridUseCase(gridRepository)
+    }
+
+    fun provideGetDroneMovesUseCase(): GetDroneMovesUseCase {
+        return GetDroneMovesUseCase(droneRepository)
+    }
+
+    fun provideGetAvailableDronesUseCase(): GetAvailableDronesUseCase {
+        return GetAvailableDronesUseCase(droneRepository)
     }
 }

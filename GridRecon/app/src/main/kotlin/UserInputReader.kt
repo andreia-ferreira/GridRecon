@@ -1,8 +1,8 @@
 package net.penguin.app
 
+import entity.InputParams
+import entity.Position
 import net.penguin.domain.entity.GridType
-import net.penguin.domain.entity.InputParams
-import net.penguin.domain.entity.Position
 
 object UserInputReader {
     fun getInitialParameters(): InputParams {
@@ -56,7 +56,8 @@ object UserInputReader {
             maxTurns = maxSteps,
             maxDuration = maxDuration,
             dronePosition = dronePosition,
-            cellRegenerationRate = cellRegenerationRate
+            cellRegenerationRate = cellRegenerationRate,
+            printToConsole = gridType != GridType.BIG // printing to the console can have great impact with bigger grids
         )
     }
 

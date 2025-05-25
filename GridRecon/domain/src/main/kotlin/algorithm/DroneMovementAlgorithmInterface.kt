@@ -1,7 +1,10 @@
-package net.penguin.domain.algorithm
+package algorithm
 
-import net.penguin.domain.entity.Simulation
+import entity.Drone
+import entity.Grid
+import entity.InputParams
 
 interface DroneMovementAlgorithmInterface {
-    fun run(simulation: Simulation, onStep: (SearchState) -> Unit)
+    fun getCandidates(latestMove: Drone.Move, grid: Grid, inputParams: InputParams): List<CandidateNextMove>
+    fun getNextBestMove(latestMove: Drone.Move, candidates: List<CandidateNextMove>): Drone.Move?
 }

@@ -1,12 +1,14 @@
-package net.penguin.domain.entity
+package entity
 
+import net.penguin.domain.entity.Direction
 import kotlin.math.abs
 
 data class Position(val x: Int, val y: Int) {
 
-    fun getNeighbors(): List<Position> {
-        return Direction.entries.map {
-            Position(x + it.dirX, y + it.dirY)
+    fun getValidNeighbors(gridSize: Int): List<Position> {
+        return Direction.entries.mapNotNull { d ->
+            Position(x + d.dirX, y + d.dirY)
+                .takeIf { it.x in 0 until gridSize && it.y in 0 until gridSize }
         }
     }
 

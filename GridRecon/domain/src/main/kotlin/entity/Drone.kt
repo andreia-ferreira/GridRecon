@@ -1,7 +1,7 @@
-package net.penguin.domain.entity
+package entity
 
-class Drone(
-    initialPosition: Position,
+data class Drone(
+    val id: Long = 0
 ) {
     data class Move(
         val turn: Int,
@@ -10,26 +10,4 @@ class Drone(
         val cumulativeScore: Int,
         val parent: Move? = null
     )
-
-    private val currentMoves = mutableListOf(Move(0, 0, initialPosition, 0))
-
-    fun getCurrentPosition(): Position {
-        return currentMoves.last().position
-    }
-
-    fun move(move: Move) {
-        currentMoves.add(move)
-    }
-
-    fun getCumulativeScore(): Int {
-        return currentMoves.last().cumulativeScore
-    }
-
-    fun getPath(): List<Position> {
-        return currentMoves.map { it.position }
-    }
-
-    fun getAllMovesData(): List<Move> {
-        return currentMoves
-    }
 }

@@ -1,30 +1,33 @@
-package net.penguin.data
+package datasource
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
+import entity.Cell
+import entity.Grid
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import net.penguin.domain.GridReaderInterface
-import net.penguin.domain.entity.Cell
-import net.penguin.domain.entity.Grid
+import kotlinx.coroutines.withContext
 import net.penguin.domain.entity.GridType
 import java.io.File
 
-object GridFileReader: GridReaderInterface, CoroutineScope by CoroutineScope(Dispatchers.Default) {
+object GridDataSource {
     private const val GRID_FOLDER = "../grids"
 
-    override fun get(gridType: GridType, regenerationRate: Double): Deferred<Grid?> {
-        return async {
+    suspend fun get(gridType: GridType, regenerationRate: Double): Grid? {
+        return withContext(Dispatchers.Default) {
             val content = getFileContent(gridType)
             val lines = content?.lines()?.filter { it.isNotBlank() }
 
-            val rows: List<List<Cell>>? = lines?.mapNotNull { line ->
+            val rows: List<MutableList<Cell>>? = lines?.mapIndexedNotNull { y, line ->
                 line.trim()
                     .takeIf { it.isNotBlank() }
                     ?.split(" ")
-                    ?.mapNotNull { cell ->
-                        cell.toIntOrNull()?.let { Cell(initialValue = it, regenerationRate = regenerationRate) }
-                    }
+                    ?.mapIndexedNotNull { x, cell ->
+                        cell.toIntOrNull()?.let {
+                            Cell(
+                                maxValue = it,
+                                currentValue = it.toDouble(),
+                                regenerationRate = regenerationRate
+                            )
+                        }
+                    }?.toMutableList()
             }.takeIf { !it.isNullOrEmpty() }
 
             rows?.let { Grid(rows) }

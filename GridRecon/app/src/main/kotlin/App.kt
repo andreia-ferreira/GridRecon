@@ -1,27 +1,22 @@
 package net.penguin.app
 
+import algorithm.DroneMovementBeamAlgorithm
 import kotlinx.coroutines.runBlocking
-import net.penguin.domain.algorithm.DroneMovementBeamAlgorithm
-import net.penguin.domain.usecase.GetSimulationUseCase
 
 fun main() = runBlocking {
     val injector = Injector
-    val getSimulationUseCase = injector.provideGetSimulationUseCase()
 
     val grinInputReader = UserInputReader
     val initialParameters = grinInputReader.getInitialParameters()
 
     println(initialParameters)
 
-    val simulation = getSimulationUseCase.execute(
-        GetSimulationUseCase.RequestParams(
-            inputParams = initialParameters,
-            regenerationRate = 0.5
-        )
-    ) ?: run {
-        println("Error setting up the grid")
-        return@runBlocking
-    }
-
-    SimulationRunner(DroneMovementBeamAlgorithm).execute(simulation)
+    SimulationRunner(
+        algorithmInterface = DroneMovementBeamAlgorithm,
+        getCurrentGridUseCase = injector.provideGetCurrentGridUseCase(),
+        getDroneMovesUseCase = injector.provideGetDroneMovesUseCase(),
+        initializeSimulationUseCase = injector.provideInitializeGridUseCase(),
+        moveDroneUseCase = injector.provideMoveDroneUseCase(),
+        getAvailableDronesUseCase = injector.provideGetAvailableDronesUseCase()
+    ).execute(inputParams = initialParameters)
 }

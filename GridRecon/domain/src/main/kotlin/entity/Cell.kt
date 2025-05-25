@@ -1,40 +1,21 @@
-package net.penguin.domain.entity
+package entity
 
-class Cell(
-    val initialValue: Int,
-    val regenerationRate: Double = 0.0
+data class Cell(
+    val maxValue: Int,
+    val currentValue: Double,
+    val regenerationRate: Double = 0.0,
+    val turnLastVisited: Int = -1
 ) {
-    private var currentValue: Double = initialValue.toDouble()
-    private var turnLastVisited: Int = -1
-
     fun getValue(): Int = currentValue.toInt()
 
-    fun consume(turn: Int) {
-        if (turnLastVisited != turn) {
-            turnLastVisited = turn
-            val consumed = currentValue.toInt()
-            currentValue -= consumed
-            consumed
-        }
-    }
-
-    fun regenerate(turn: Int) {
-        if (getValue() < initialValue && turn != turnLastVisited) {
-            currentValue = minOf(initialValue.toDouble(), currentValue + regenerationRate)
-        }
+    fun canRegenerate(turn: Int): Boolean {
+        return currentValue < maxValue.toDouble() && turn != turnLastVisited
     }
 
     fun estimateValueAt(currentTurn: Int, targetTurn: Int): Int {
-        if (getValue() == initialValue) return getValue()
+        if (getValue() == maxValue) return getValue()
         val elapsedTurns = targetTurn - currentTurn
         val projectedValue = getValue() + (regenerationRate * elapsedTurns)
-        return minOf(initialValue, projectedValue.toInt())
-    }
-
-    fun copy(): Cell {
-        val copy = Cell(initialValue, regenerationRate)
-        copy.currentValue = this.currentValue
-        copy.turnLastVisited = this.turnLastVisited
-        return copy
+        return minOf(maxValue, projectedValue.toInt())
     }
 }
