@@ -4,8 +4,6 @@ import entity.*
 import kotlin.math.max
 
 object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
-    private const val BEAM_WIDTH = 10
-
     override fun getCandidates(
         latestMove: Drone.Move,
         grid: Grid,

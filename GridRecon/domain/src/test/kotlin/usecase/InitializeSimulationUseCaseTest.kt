@@ -25,19 +25,25 @@ class InitializeSimulationUseCaseTest {
     }
 
     @Test
-    fun `execute should initialize grid, add drone, and consume cell`() = runTest {
-        val position = Position(2, 3)
+    fun `execute should initialize grid, add drones, and consume cells for each position`() = runTest {
+        val positions = listOf(Position(2, 3), Position(1, 1))
         val gridType = GridType.SMALL
         val regenerationRate = 0.5
-        val inputParams = SimulationParametersGenerator.generate(dronePositions = listOf(position), gridType = gridType, cellRegenerationRate = regenerationRate)
+        val inputParams = SimulationParametersGenerator.generate(
+            dronePositions = positions,
+            gridType = gridType,
+            cellRegenerationRate = regenerationRate
+        )
         val requestParams = InitializeSimulationUseCase.RequestParams(inputParams)
 
         useCase.execute(requestParams)
 
         coVerifySequence {
             gridRepository.initializeGrid(gridType, regenerationRate)
-            droneRepository.add(any<Drone>(), position)
-            gridRepository.consumeCell(position, 0)
+            for (position in positions) {
+                droneRepository.add(any<Drone>(), position)
+                gridRepository.consumeCell(position, 0)
+            }
         }
     }
 }

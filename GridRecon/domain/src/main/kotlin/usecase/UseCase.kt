@@ -1,4 +1,4 @@
-package net.penguin.domain.usecase
+package usecase
 
 sealed interface UseCase {
     interface NoParamsUseCase<out R>: UseCase {

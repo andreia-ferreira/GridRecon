@@ -2,7 +2,6 @@ package usecase
 
 import entity.Drone
 import entity.SimulationParameters
-import net.penguin.domain.usecase.UseCase
 import repository.DroneRepositoryInterface
 import repository.GridRepositoryInterface
 

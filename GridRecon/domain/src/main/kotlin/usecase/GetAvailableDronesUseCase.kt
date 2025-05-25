@@ -1,7 +1,6 @@
 package usecase
 
 import entity.Drone
-import net.penguin.domain.usecase.UseCase
 import repository.DroneRepositoryInterface
 
 class GetAvailableDronesUseCase(

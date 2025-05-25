@@ -79,4 +79,22 @@ class DroneMovementBeamAlgorithmTest {
 
         assertNull(move)
     }
+
+    @Test
+    fun `getCandidates should not include forbidden positions`() {
+        val currentMove = Drone.Move(turn = 0, score = 0, cumulativeScore = 0, position = Position(1, 1))
+        val inputParams = SimulationParametersGenerator.generate(dronePositions = listOf(Position(1, 1)))
+        val matrix = listOf(
+            mutableListOf(0, 0, 0),
+            mutableListOf(0, 1, 0),
+            mutableListOf(1, 2, 0),
+        )
+        val grid = GridGenerator.generate(matrix, inputParams.cellRegenerationRate)
+
+        val forbidden = listOf(Position(0, 1), Position(2, 1))
+        val result = DroneMovementBeamAlgorithm.getCandidates(currentMove, grid, inputParams, forbidPositions = forbidden)
+        val candidatePositions = result.map { it.first.position }
+
+        assertFalse(candidatePositions.any { it in forbidden })
+    }
 }

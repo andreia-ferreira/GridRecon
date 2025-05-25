@@ -1,7 +1,6 @@
 package usecase
 
 import entity.Drone
-import net.penguin.domain.usecase.UseCase
 import repository.DroneRepositoryInterface
 import repository.GridRepositoryInterface
 import usecase.MoveDroneUseCase.RequestParams
@@ -22,8 +21,6 @@ class MoveDroneUseCase(
         gridRepositoryInterface.consumeCell(position = currentDronePosition, turn = currentTurn)
     }
 
-    class RequestParams(
-        val droneId: Long,
-        val droneMove: Drone.Move
+    class RequestParams(val droneId: Long, val droneMove: Drone.Move
     )
 }

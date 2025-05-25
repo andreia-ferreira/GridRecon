@@ -228,6 +228,30 @@ class SimulationIntegrationTest {
         assertTrue (droneMoves.getCumulativeScore() > 10)
     }
 
+    @Test
+    fun `Should allow multiple drones to move without overlapping`() = runBlocking {
+        val droneStartPositions = listOf(Position(0, 0), Position(0, 2))
+        val inputParams = SimulationParametersGenerator.generate(dronePositions = droneStartPositions, maxTurns = 2)
+        val matrixString = listOf(
+            "1 0 1",
+            "1 1 1",
+            "1 1 1"
+        )
+        setupMocks(matrixString)
+
+        simulationRunner.execute(inputParams)
+
+        val positionsVisitedByDrone0 = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(0))
+            .map { it.position }
+        val positionsVisitedByDrone1 = getAllDroneMovesUseCase.execute(GetAllDroneMovesUseCase.RequestParams(1))
+            .map { it.position }
+        val overlapping = positionsVisitedByDrone0.intersect(positionsVisitedByDrone1)
+        assertTrue(overlapping.isEmpty())
+        assertTrue(positionsVisitedByDrone0.size > 1)
+        assertTrue(positionsVisitedByDrone1.size > 1)
+    }
+
+
     private suspend fun setupMocks(matrix: List<String>) {
         whenever(mockGridDataSource.getFileContents(any())).thenReturn(matrix)
     }

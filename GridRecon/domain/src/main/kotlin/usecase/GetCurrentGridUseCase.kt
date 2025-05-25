@@ -1,7 +1,6 @@
 package usecase
 
 import entity.Grid
-import net.penguin.domain.usecase.UseCase
 import repository.GridRepositoryInterface
 
 class GetCurrentGridUseCase(
