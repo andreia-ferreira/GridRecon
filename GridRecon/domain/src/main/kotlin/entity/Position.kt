@@ -1,6 +1,5 @@
 package entity
 
-import net.penguin.domain.entity.Direction
 import kotlin.math.abs
 
 data class Position(val x: Int, val y: Int) {

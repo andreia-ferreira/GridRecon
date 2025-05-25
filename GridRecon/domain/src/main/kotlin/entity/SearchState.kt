@@ -1,7 +1,4 @@
-package algorithm
-
-import entity.CandidateNextMove
-import entity.Drone
+package entity
 
 sealed class SearchState {
     data object Begin: SearchState()

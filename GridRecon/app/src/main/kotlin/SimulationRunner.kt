@@ -1,7 +1,6 @@
 package net.penguin.app
 
 import algorithm.DroneMovementAlgorithmInterface
-import algorithm.SearchState
 import entity.*
 import net.penguin.app.ConsolePrintUtils.printGrid
 import net.penguin.app.ConsolePrintUtils.printSideBySideGrids
@@ -43,10 +42,11 @@ class SimulationRunner(
             !isOutOfMoves(currentTurn = currentTurn, maxTurns = simulationParameters.maxTurns)
         ) {
             for (drone in drones) {
-                val candidates = getCandidatesNextMove(simulationParameters, drone)
+                val latestDroneMove = getLatestDroneMovesUseCase.execute(GetLatestDroneMovesUseCase.RequestParams(drone.id))
+                val candidates = getCandidatesNextMove(simulationParameters, latestDroneMove)
                 if (candidates.isEmpty() || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
 
-                val nextMove = pickBestMove(candidates, simulationParameters, drone)
+                val nextMove = pickBestMove(candidates, simulationParameters, latestDroneMove)
                 if (nextMove == null || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
                 executeMove(nextMove, drone)
 
@@ -60,9 +60,8 @@ class SimulationRunner(
 
     private suspend fun getCandidatesNextMove(
         simulationParameters: SimulationParameters,
-        drone: Drone
+        latestDroneMove: Drone.Move
     ): List<CandidateNextMove> {
-        val latestDroneMove = getLatestDroneMovesUseCase.execute(GetLatestDroneMovesUseCase.RequestParams(drone.id))
         val otherDronesPositions = drones.map {
             getLatestDroneMovesUseCase.execute(GetLatestDroneMovesUseCase.RequestParams(it.id)).position
         }
@@ -79,12 +78,11 @@ class SimulationRunner(
         return candidates
     }
 
-    private suspend fun pickBestMove(
+    private fun pickBestMove(
         candidates: List<CandidateNextMove>,
         simulationParameters: SimulationParameters,
-        drone: Drone
+        latestDroneMove: Drone.Move
     ): Drone.Move? {
-        val latestDroneMove = getLatestDroneMovesUseCase.execute(GetLatestDroneMovesUseCase.RequestParams(drone.id))
         return algorithmInterface.getNextBestMove(latestDroneMove, candidates, simulationParameters)
     }
 

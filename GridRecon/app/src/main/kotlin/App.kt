@@ -6,8 +6,7 @@ import kotlinx.coroutines.runBlocking
 fun main() = runBlocking {
     val injector = Injector
 
-    val grinInputReader = UserInputReader
-    val initialParameters = grinInputReader.getInitialParameters()
+    val initialParameters = UserInputReader.getInitialParameters()
 
     println(initialParameters)
 

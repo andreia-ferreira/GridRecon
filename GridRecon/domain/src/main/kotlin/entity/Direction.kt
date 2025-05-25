@@ -1,4 +1,4 @@
-package net.penguin.domain.entity
+package entity
 
 enum class Direction(val dirX: Int, val dirY: Int) {
     UP(0, -1),
