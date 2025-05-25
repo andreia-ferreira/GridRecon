@@ -1,5 +1,6 @@
 package algorithm
 
+import entity.CandidateNextMove
 import entity.Drone
 import entity.Grid
 import entity.InputParams

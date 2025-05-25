@@ -1,16 +1,12 @@
 package entity
 
 data class Grid(
-    val rows: List<MutableList<Cell>>
+    val rows: List<List<Cell>>
 ) {
     val size = rows.size
 
     fun getCell(position: Position): Cell {
         return rows[rows.lastIndex - position.y][position.x]
-    }
-
-    fun replaceCell(cell: Cell, position: Position) {
-        rows[rows.lastIndex - position.y][position.x] = cell
     }
 
     fun deepCopy(): Grid {

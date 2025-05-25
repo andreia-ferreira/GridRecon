@@ -1,12 +1,6 @@
 package algorithm
 
-import entity.Drone
-import entity.Grid
-import entity.InputParams
-import entity.Position
-
-data class PotentialScore(val value: Int, val from: Position, val evaluatedPositions: List<Position>)
-typealias CandidateNextMove = Pair<Drone.Move, PotentialScore>
+import entity.*
 
 object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
     private const val BEAM_WIDTH = 10
@@ -70,7 +64,7 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
         from: Position,
         turn: Int,
         stepsLeft: Int
-    ): PotentialScore {
+    ): EstimatedScore {
         var totalScore = 0
         var currentPos = from
         var currentTurn = turn
@@ -89,6 +83,6 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
             currentTurn += 1
         }
 
-        return PotentialScore(value = totalScore, from = from, evaluatedPositions = evaluatedPositions.toList())
+        return EstimatedScore(value = totalScore, from = from, evaluatedPositions = evaluatedPositions.toList())
     }
 }

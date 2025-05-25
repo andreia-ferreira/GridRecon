@@ -1,7 +1,5 @@
 package datasource
 
-import entity.Cell
-import entity.Grid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.penguin.domain.entity.GridType
@@ -10,27 +8,12 @@ import java.io.File
 object GridDataSource {
     private const val GRID_FOLDER = "../grids"
 
-    suspend fun get(gridType: GridType, regenerationRate: Double): Grid? {
+    suspend fun getFileContents(gridType: GridType): List<String>? {
         return withContext(Dispatchers.Default) {
             val content = getFileContent(gridType)
             val lines = content?.lines()?.filter { it.isNotBlank() }
 
-            val rows: List<MutableList<Cell>>? = lines?.mapIndexedNotNull { y, line ->
-                line.trim()
-                    .takeIf { it.isNotBlank() }
-                    ?.split(" ")
-                    ?.mapIndexedNotNull { x, cell ->
-                        cell.toIntOrNull()?.let {
-                            Cell(
-                                maxValue = it,
-                                currentValue = it.toDouble(),
-                                regenerationRate = regenerationRate
-                            )
-                        }
-                    }?.toMutableList()
-            }.takeIf { !it.isNullOrEmpty() }
-
-            rows?.let { Grid(rows) }
+            lines
         }
     }
 

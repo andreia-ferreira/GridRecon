@@ -1,12 +1,8 @@
 package net.penguin.app
 
-import algorithm.CandidateNextMove
 import algorithm.DroneMovementAlgorithmInterface
 import algorithm.SearchState
-import entity.Drone
-import entity.Grid
-import entity.InputParams
-import entity.Position
+import entity.*
 import net.penguin.app.ConsolePrintUtils.printGrid
 import net.penguin.app.ConsolePrintUtils.printSideBySideGrids
 import org.jetbrains.annotations.VisibleForTesting
