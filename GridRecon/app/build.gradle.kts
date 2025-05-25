@@ -8,11 +8,14 @@ plugins {
 }
 
 dependencies {
-    // Project "app" depends on project "utils". (Project paths are separated with ":", so ":utils" refers to the top-level "utils" project.)
     implementation(project(":utils"))
     implementation(project(":domain"))
     implementation(project(":data"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    testImplementation(kotlin("test"))
+    testImplementation(libs.mockitoKotlin)
+    implementation(libs.kotlinxCoroutines)
+    testImplementation(libs.jupiterApi)
+    testRuntimeOnly(libs.jupiterEngine)
 }
 
 application {
@@ -32,5 +35,9 @@ tasks.jar {
         }
     })
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
