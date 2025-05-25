@@ -1,7 +1,7 @@
 package utils
 
-import entity.InputParams
 import entity.Position
+import entity.SimulationParameters
 import net.penguin.domain.entity.GridType
 import org.jetbrains.annotations.VisibleForTesting
 
@@ -14,8 +14,8 @@ object InputParamsGenerator {
         cellRegenerationRate: Double = 0.0,
         dronePosition: Position,
         printToConsole: Boolean = false
-    ): InputParams {
-        return InputParams(
+    ): SimulationParameters {
+        return SimulationParameters(
             maxTurns = maxTurns,
             maxDuration = maxDuration,
             gridType = gridType,

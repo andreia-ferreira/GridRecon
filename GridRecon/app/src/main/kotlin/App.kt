@@ -18,5 +18,5 @@ fun main() = runBlocking {
         initializeSimulationUseCase = injector.provideInitializeGridUseCase(),
         moveDroneUseCase = injector.provideMoveDroneUseCase(),
         getAvailableDronesUseCase = injector.provideGetAvailableDronesUseCase()
-    ).execute(inputParams = initialParameters)
+    ).execute(simulationParameters = initialParameters)
 }

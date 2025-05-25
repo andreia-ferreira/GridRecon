@@ -8,7 +8,7 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
     override fun getCandidates(
         latestMove: Drone.Move,
         grid: Grid,
-        inputParams: InputParams
+        simulationParameters: SimulationParameters
     ): List<CandidateNextMove> {
         val candidates = mutableListOf<CandidateNextMove>()
         val nextTurn = latestMove.turn + 1
@@ -16,7 +16,7 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
         val neighbors = latestMove.position.getValidNeighbors(grid.size)
 
         for (neighbor in neighbors) {
-            if (nextTurn > inputParams.maxTurns) continue
+            if (nextTurn > simulationParameters.maxTurns) continue
 
 
             val cellValue = grid.getCell(neighbor).getValue()
@@ -25,7 +25,7 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
                 grid = grid,
                 from = neighbor,
                 turn = nextTurn,
-                stepsLeft = inputParams.maxTurns - nextTurn
+                stepsLeft = simulationParameters.maxTurns - nextTurn
             )
 
             val nextDronePosition = Drone.Move(

@@ -1,7 +1,7 @@
 package usecase
 
 import entity.Drone
-import entity.InputParams
+import entity.SimulationParameters
 import net.penguin.domain.usecase.UseCase
 import repository.DroneRepositoryInterface
 import repository.GridRepositoryInterface
@@ -12,13 +12,13 @@ class InitializeSimulationUseCase(
 ): UseCase.ParamsUseCase<InitializeSimulationUseCase.RequestParams, Unit> {
     override suspend fun execute(requestParams: RequestParams) {
         gridRepositoryInterface.initializeGrid(
-            gridType = requestParams.inputParams.gridType,
+            gridType = requestParams.simulationParameters.gridType,
             regenerationRate = requestParams.regenerationRate,
         )
 
-        droneRepositoryInterface.add(Drone(), requestParams.inputParams.dronePosition)
-        gridRepositoryInterface.consumeCell(position = requestParams.inputParams.dronePosition, turn = 0)
+        droneRepositoryInterface.add(Drone(), requestParams.simulationParameters.dronePosition)
+        gridRepositoryInterface.consumeCell(position = requestParams.simulationParameters.dronePosition, turn = 0)
     }
 
-    class RequestParams(val inputParams: InputParams, val regenerationRate: Double)
+    class RequestParams(val simulationParameters: SimulationParameters, val regenerationRate: Double)
 }

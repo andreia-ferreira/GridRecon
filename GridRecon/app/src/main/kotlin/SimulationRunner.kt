@@ -22,16 +22,16 @@ class SimulationRunner(
     private var initialGrid: Grid? = null
     private var isPrintToConsoleEnabled = false
 
-    suspend fun execute(inputParams: InputParams) {
+    suspend fun execute(simulationParameters: SimulationParameters) {
         initializeSimulationUseCase.execute(
             InitializeSimulationUseCase.RequestParams(
-                inputParams = inputParams,
+                simulationParameters = simulationParameters,
                 regenerationRate = 0.5
             )
         )
         drones = getAvailableDronesUseCase.execute()
 
-        if (inputParams.printToConsole) {
+        if (simulationParameters.printToConsole) {
             initialGrid = getCurrentGridUseCase.execute().deepCopy()
             isPrintToConsoleEnabled = true
         }
@@ -42,14 +42,14 @@ class SimulationRunner(
         displayState(SearchState.Begin)
 
         while (
-            !isOutOfTime(startTime = startTime, maxTime = inputParams.maxDuration) &&
-            !isOutOfMoves(currentTurn = currentTurn, maxTurns = inputParams.maxTurns)
+            !isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration) &&
+            !isOutOfMoves(currentTurn = currentTurn, maxTurns = simulationParameters.maxTurns)
         ) {
-            val candidates = getCandidatesNextMove(inputParams)
-            if (candidates.isEmpty() || isOutOfTime(startTime = startTime, maxTime = inputParams.maxDuration)) break
+            val candidates = getCandidatesNextMove(simulationParameters)
+            if (candidates.isEmpty() || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
 
             val nextMove = pickBestMove(candidates)
-            if (nextMove == null || isOutOfTime(startTime = startTime, maxTime = inputParams.maxDuration)) break
+            if (nextMove == null || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
             executeMove(nextMove)
 
             currentTurn = nextMove.turn
@@ -59,13 +59,13 @@ class SimulationRunner(
         displayState(SearchState.Finish)
     }
 
-    private suspend fun getCandidatesNextMove(inputParams: InputParams): List<CandidateNextMove> {
+    private suspend fun getCandidatesNextMove(simulationParameters: SimulationParameters): List<CandidateNextMove> {
         val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(drones.first().id))
         val grid = getCurrentGridUseCase.execute()
         val candidates = algorithmInterface.getCandidates(
             latestMove = droneMoves.last(),
             grid = grid,
-            inputParams = inputParams,
+            simulationParameters = simulationParameters,
         )
         exploredPositions.addAll(candidates.map { it.second.evaluatedPositions }.flatten())
         exploredPositions.addAll(candidates.map { it.second.from })

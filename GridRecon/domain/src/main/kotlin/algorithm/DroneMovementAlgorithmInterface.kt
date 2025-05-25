@@ -3,9 +3,9 @@ package algorithm
 import entity.CandidateNextMove
 import entity.Drone
 import entity.Grid
-import entity.InputParams
+import entity.SimulationParameters
 
 interface DroneMovementAlgorithmInterface {
-    fun getCandidates(latestMove: Drone.Move, grid: Grid, inputParams: InputParams): List<CandidateNextMove>
+    fun getCandidates(latestMove: Drone.Move, grid: Grid, simulationParameters: SimulationParameters): List<CandidateNextMove>
     fun getNextBestMove(latestMove: Drone.Move, candidates: List<CandidateNextMove>): Drone.Move?
 }

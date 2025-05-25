@@ -1,11 +1,11 @@
 package net.penguin.app
 
-import entity.InputParams
 import entity.Position
+import entity.SimulationParameters
 import net.penguin.domain.entity.GridType
 
 object UserInputReader {
-    fun getInitialParameters(): InputParams {
+    fun getInitialParameters(): SimulationParameters {
         val cellRegenerationRate = 0.5
         val gridType: GridType = requestInput(
             prompt = "Which grid size would you like to use?\n" +
@@ -51,7 +51,7 @@ object UserInputReader {
             }
         )
 
-        return InputParams(
+        return SimulationParameters(
             gridType = gridType,
             maxTurns = maxSteps,
             maxDuration = maxDuration,

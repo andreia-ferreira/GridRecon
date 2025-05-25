@@ -2,7 +2,7 @@ package entity
 
 import net.penguin.domain.entity.GridType
 
-data class InputParams(
+data class SimulationParameters(
     val gridType: GridType,
     val maxTurns: Int,
     val maxDuration: Long,
