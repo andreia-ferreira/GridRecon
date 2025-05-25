@@ -1,8 +1,8 @@
 package repository
 
 import entity.Grid
+import entity.GridType
 import entity.Position
-import net.penguin.domain.entity.GridType
 
 interface GridRepositoryInterface {
     suspend fun initializeGrid(gridType: GridType, regenerationRate: Double)

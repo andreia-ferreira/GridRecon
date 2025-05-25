@@ -5,14 +5,14 @@ import entity.Position
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import utils.GridGenerator
-import utils.InputParamsGenerator
+import utils.SimulationParametersGenerator
 
 class DroneMovementBeamAlgorithmTest {
 
     @Test
     fun `getCandidates return all valid neighbor moves in 8 directions`() {
         val currentMove = Drone.Move(turn = 0, score = 0, cumulativeScore = 0, position = Position(1, 1))
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(0, 0))
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(0, 0))
         val matrix = listOf(
             mutableListOf(0, 1, 0),
             mutableListOf(0, 0, 0),
@@ -33,7 +33,7 @@ class DroneMovementBeamAlgorithmTest {
     @Test
     fun `getCandidates return only valid neighbor moves if the drone is on the edge of the grid`() {
         val currentMove = Drone.Move(turn = 0, score = 0, cumulativeScore = 0, position = Position(2, 0))
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(2, 0))
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(2, 0))
         val matrix = listOf(
             mutableListOf(0, 1, 0),
             mutableListOf(0, 0, 0),
@@ -53,7 +53,7 @@ class DroneMovementBeamAlgorithmTest {
     @Test
     fun `getNextBestMove should select the neighbor with highest total score`() {
         val currentMove = Drone.Move(turn = 0, score = 0, cumulativeScore = 0, position = Position(1, 1))
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(0, 0))
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(0, 0))
         val matrix = listOf(
             mutableListOf(0, 1, 0),
             mutableListOf(0, 0, 0),
@@ -62,7 +62,7 @@ class DroneMovementBeamAlgorithmTest {
         val grid = GridGenerator.generate(matrix, inputParams.cellRegenerationRate)
 
         val candidates = DroneMovementBeamAlgorithm.getCandidates(currentMove, grid, inputParams)
-        val move = DroneMovementBeamAlgorithm.getNextBestMove(currentMove, candidates)
+        val move = DroneMovementBeamAlgorithm.getNextBestMove(currentMove, candidates, inputParams)
 
         assertEquals(Position(1, 2), move!!.position)
     }
@@ -71,11 +71,11 @@ class DroneMovementBeamAlgorithmTest {
     fun `getNextBestMove should return null if no valid neighbor exists`() {
         val matrix = listOf(mutableListOf(0))
         val currentMove = Drone.Move(turn = 0, score = 0, cumulativeScore = 0, position = Position(0, 0))
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(1, 1))
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(1, 1))
         val grid = GridGenerator.generate(matrix, inputParams.cellRegenerationRate)
 
         val candidates = DroneMovementBeamAlgorithm.getCandidates(currentMove, grid, inputParams)
-        val move = DroneMovementBeamAlgorithm.getNextBestMove(currentMove, candidates)
+        val move = DroneMovementBeamAlgorithm.getNextBestMove(currentMove, candidates, inputParams)
 
         assertNull(move)
     }

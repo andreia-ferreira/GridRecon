@@ -13,12 +13,12 @@ class InitializeSimulationUseCase(
     override suspend fun execute(requestParams: RequestParams) {
         gridRepositoryInterface.initializeGrid(
             gridType = requestParams.simulationParameters.gridType,
-            regenerationRate = requestParams.regenerationRate,
+            regenerationRate = requestParams.simulationParameters.cellRegenerationRate,
         )
 
         droneRepositoryInterface.add(Drone(), requestParams.simulationParameters.dronePosition)
         gridRepositoryInterface.consumeCell(position = requestParams.simulationParameters.dronePosition, turn = 0)
     }
 
-    class RequestParams(val simulationParameters: SimulationParameters, val regenerationRate: Double)
+    class RequestParams(val simulationParameters: SimulationParameters)
 }

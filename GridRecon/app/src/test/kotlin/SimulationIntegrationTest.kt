@@ -12,7 +12,7 @@ import org.mockito.kotlin.whenever
 import repository.DroneRepository
 import repository.GridRepository
 import usecase.*
-import utils.InputParamsGenerator
+import utils.SimulationParametersGenerator
 import utils.getCumulativeScore
 import utils.getPath
 import kotlin.test.Ignore
@@ -45,7 +45,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should move towards a cell with a higher score`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(0,0), maxTurns = 2)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(0,0), maxTurns = 2)
         val matrixString = listOf(
             "0 0 0",
             "0 0 0",
@@ -67,7 +67,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should prefer higher value path than a lower value`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(0,0), maxTurns = 1)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(0,0), maxTurns = 1)
         val matrixString = listOf(
             "0 0 0",
             "1 2 0",
@@ -89,7 +89,7 @@ class SimulationIntegrationTest {
     @Ignore
     @Test
     fun `Should choose the most efficient path`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(2,2), maxTurns = 5)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(2,2), maxTurns = 5)
         val matrixString = listOf(
             "0 0 0 0",
             "0 0 0 0",
@@ -108,7 +108,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should move through all cells with high score`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(0,0), maxTurns = 3)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(0,0), maxTurns = 3)
         val matrixString = listOf(
             "1 1 1 2",
             "1 1 2 0",
@@ -132,7 +132,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should stay at the start position when there are no more moves left`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(0,0), maxTurns = 0)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(0,0), maxTurns = 0)
         val matrixString = listOf(
             "1 2 3",
             "4 5 6",
@@ -148,7 +148,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should stop when the max duration is reached`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(1,1), maxTurns = 50, maxDuration = 100)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(1,1), maxTurns = 50, maxDuration = 100)
         val matrixString: List<String> = List(10) { List(10) { 1 }.joinToString(" ") }
         setupMocks(matrixString)
 
@@ -161,7 +161,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should handle large grid within the time limits`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(1,1), maxTurns = 50, maxDuration = 100)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(1,1), maxTurns = 50, maxDuration = 100)
         val size = 1000
         val matrix = List(size) { i ->
             List(size) { j ->
@@ -179,7 +179,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should move even if the grid has zero score values`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(1,1), maxTurns = 3)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(1,1), maxTurns = 3)
         val matrixString: List<String> = List(10) { List(10) { 0 }.joinToString(" ") }
         setupMocks(matrixString)
 
@@ -192,7 +192,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should handle spiral pattern efficiently`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(0,0), maxTurns = 8)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(0,0), maxTurns = 8)
         val matrixString = listOf(
             "1 1 1 1 1",
             "1 5 5 5 1",
@@ -211,7 +211,7 @@ class SimulationIntegrationTest {
 
     @Test
     fun `Should revisit high-value regenerating cells`() = runBlocking {
-        val inputParams = InputParamsGenerator.generate(dronePosition = Position(0,0), maxTurns = 4, cellRegenerationRate = 0.5)
+        val inputParams = SimulationParametersGenerator.generate(dronePosition = Position(0,0), maxTurns = 4, cellRegenerationRate = 0.5)
         val matrixString = listOf(
             "0 0 0",
             "0 10 0",

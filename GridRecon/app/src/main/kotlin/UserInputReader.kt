@@ -1,12 +1,11 @@
 package net.penguin.app
 
+import entity.GridType
 import entity.Position
 import entity.SimulationParameters
-import net.penguin.domain.entity.GridType
 
 object UserInputReader {
     fun getInitialParameters(): SimulationParameters {
-        val cellRegenerationRate = 0.5
         val gridType: GridType = requestInput(
             prompt = "Which grid size would you like to use?\n" +
                     GridType.entries.mapIndexed { index, type ->
@@ -56,8 +55,8 @@ object UserInputReader {
             maxTurns = maxSteps,
             maxDuration = maxDuration,
             dronePosition = dronePosition,
-            cellRegenerationRate = cellRegenerationRate,
-            printToConsole = gridType != GridType.BIG // printing to the console can have great impact with bigger grids
+            cellRegenerationRate = 0.25,
+            printIntermediateSteps = gridType == GridType.SMALL // printing to the console can have great impact with bigger grids
         )
     }
 

@@ -3,8 +3,8 @@ package repository
 import datasource.GridDataSource
 import entity.Cell
 import entity.Grid
+import entity.GridType
 import entity.Position
-import net.penguin.domain.entity.GridType
 
 private typealias MutableGrid = List<MutableList<Cell>>
 

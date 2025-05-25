@@ -1,11 +1,11 @@
 package utils
 
+import entity.GridType
 import entity.Position
 import entity.SimulationParameters
-import net.penguin.domain.entity.GridType
 import org.jetbrains.annotations.VisibleForTesting
 
-object InputParamsGenerator {
+object SimulationParametersGenerator {
     @VisibleForTesting
     fun generate(
         maxTurns: Int = 2,
@@ -21,7 +21,7 @@ object InputParamsGenerator {
             gridType = gridType,
             dronePosition = dronePosition,
             cellRegenerationRate = cellRegenerationRate,
-            printToConsole = printToConsole
+            printIntermediateSteps = printToConsole
         )
     }
 }

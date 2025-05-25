@@ -7,5 +7,5 @@ import entity.SimulationParameters
 
 interface DroneMovementAlgorithmInterface {
     fun getCandidates(latestMove: Drone.Move, grid: Grid, simulationParameters: SimulationParameters): List<CandidateNextMove>
-    fun getNextBestMove(latestMove: Drone.Move, candidates: List<CandidateNextMove>): Drone.Move?
+    fun getNextBestMove(latestMove: Drone.Move, candidates: List<CandidateNextMove>, simulationParameters: SimulationParameters): Drone.Move?
 }

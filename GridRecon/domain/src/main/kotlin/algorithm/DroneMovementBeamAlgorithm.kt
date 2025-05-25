@@ -1,6 +1,7 @@
 package algorithm
 
 import entity.*
+import kotlin.math.max
 
 object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
     private const val BEAM_WIDTH = 10
@@ -43,12 +44,15 @@ object DroneMovementBeamAlgorithm: DroneMovementAlgorithmInterface {
 
     override fun getNextBestMove(
         latestMove: Drone.Move,
-        candidates: List<CandidateNextMove>
+        candidates: List<CandidateNextMove>,
+        simulationParameters: SimulationParameters
     ): Drone.Move? {
+        val beamWidth = max(5, (simulationParameters.gridType.size + simulationParameters.maxTurns) / 3)
+
         val sortedCandidates = candidates
             .sortedWith(compareByDescending<CandidateNextMove> { it.second.value + it.first.score }
                 .thenByDescending { it.first.score })
-            .take(BEAM_WIDTH)
+            .take(beamWidth)
 
         val bestNextMove = sortedCandidates
             .map { it.first }

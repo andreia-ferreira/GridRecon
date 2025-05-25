@@ -57,7 +57,7 @@ object ConsolePrintUtils {
             redTarget = redFinal,
             highlightedPositions = highlightedPositions,
             greyedOutPositions = explored
-        )
+        ).forEach { println(it) }
     }
 
     private fun getStyledLines(

@@ -20,20 +20,17 @@ class SimulationRunner(
     private var drones = emptyList<Drone>()
     @VisibleForTesting var elapsedTime: Long = -1
     private var initialGrid: Grid? = null
-    private var isPrintToConsoleEnabled = false
+    private var printIntermediateSteps = false
 
     suspend fun execute(simulationParameters: SimulationParameters) {
         initializeSimulationUseCase.execute(
-            InitializeSimulationUseCase.RequestParams(
-                simulationParameters = simulationParameters,
-                regenerationRate = 0.5
-            )
+            InitializeSimulationUseCase.RequestParams(simulationParameters = simulationParameters)
         )
         drones = getAvailableDronesUseCase.execute()
 
-        if (simulationParameters.printToConsole) {
+        if (simulationParameters.printIntermediateSteps) {
             initialGrid = getCurrentGridUseCase.execute().deepCopy()
-            isPrintToConsoleEnabled = true
+            printIntermediateSteps = true
         }
 
         val startTime = System.currentTimeMillis()
@@ -48,7 +45,7 @@ class SimulationRunner(
             val candidates = getCandidatesNextMove(simulationParameters)
             if (candidates.isEmpty() || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
 
-            val nextMove = pickBestMove(candidates)
+            val nextMove = pickBestMove(candidates, simulationParameters)
             if (nextMove == null || isOutOfTime(startTime = startTime, maxTime = simulationParameters.maxDuration)) break
             executeMove(nextMove)
 
@@ -73,9 +70,9 @@ class SimulationRunner(
         return candidates
     }
 
-    private suspend fun pickBestMove(candidates: List<CandidateNextMove>): Drone.Move? {
+    private suspend fun pickBestMove(candidates: List<CandidateNextMove>, simulationParameters: SimulationParameters): Drone.Move? {
         val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(0))
-        return algorithmInterface.getNextBestMove(droneMoves.last(), candidates)
+        return algorithmInterface.getNextBestMove(droneMoves.last(), candidates, simulationParameters)
     }
 
     private suspend fun executeMove(move: Drone.Move) {
@@ -95,7 +92,7 @@ class SimulationRunner(
     }
 
     private suspend fun displayState(state: SearchState) {
-        if (!isPrintToConsoleEnabled) return
+        if (!printIntermediateSteps && state != SearchState.Finish) return
         val grid = getCurrentGridUseCase.execute()
         val droneMoves = getDroneMovesUseCase.execute(GetDroneMovesUseCase.RequestParams(drones.first().id))
 
